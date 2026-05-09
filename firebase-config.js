@@ -4,6 +4,7 @@
    Firestore collections used by the website:
    - airpod_sales  : stores sales records
    - airpod_models : stores Category, Model AirPods, and import price
+   - airpod_stock  : stores stock-in records
 */
 
 window.AIRPODS_FIREBASE_CONFIG = {
@@ -18,3 +19,5 @@ window.AIRPODS_FIREBASE_CONFIG = {
 
 window.AIRPODS_FIRESTORE_COLLECTION = "airpod_sales";
 window.AIRPODS_PRODUCTS_COLLECTION = "airpod_models";
+
+window.AIRPODS_STOCK_COLLECTION = "airpod_stock";
