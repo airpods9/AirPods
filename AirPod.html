@@ -1,0 +1,1588 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AirPods — របាយការណ៍លក់</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+Khmer:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #111118;
+    --bg3: #18181f;
+    --card: #1c1c26;
+    --card2: #22222e;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --blue: #0a84ff;
+    --blue2: #409cff;
+    --blue-glow: rgba(10,132,255,0.15);
+    --green: #30d158;
+    --green2: rgba(48,209,88,0.12);
+    --red: #ff453a;
+    --red2: rgba(255,69,58,0.12);
+    --amber: #ffd60a;
+    --amber2: rgba(255,214,10,0.12);
+    --text: #f2f2f7;
+    --text2: #aeaeb2;
+    --text3: #636366;
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Outfit', 'Noto Sans Khmer', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── NAVBAR ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 0.5px solid var(--border);
+    padding: 0 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 60px;
+  }
+  .nav-brand { display: flex; align-items: center; gap: 10px; }
+  .nav-brand svg { width: 28px; height: 28px; fill: var(--blue); }
+  .nav-brand span { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
+  .nav-brand span em { color: var(--blue); font-style: normal; }
+  .nav-tabs { display: flex; gap: 4px; }
+  .nav-tab {
+    padding: 7px 16px; border-radius: 8px; cursor: pointer;
+    font-size: 14px; font-weight: 500; color: var(--text2);
+    border: none; background: transparent; transition: all .2s;
+  }
+  .nav-tab:hover { background: var(--card); color: var(--text); }
+  .nav-tab.active { background: var(--blue); color: #fff; }
+  .nav-right { display: flex; align-items: center; gap: 12px; }
+  .badge-time {
+    font-size: 12px; color: var(--text3);
+    background: var(--card); padding: 4px 10px;
+    border-radius: 6px; border: 0.5px solid var(--border);
+  }
+
+  /* ── PAGES ── */
+  .page { display: none; padding: 28px 24px; max-width: 1300px; margin: 0 auto; }
+  .page.active { display: block; }
+
+  /* ── SECTION HEADER ── */
+  .section-header {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
+  }
+  .section-title { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+  .section-sub { font-size: 13px; color: var(--text3); margin-top: 3px; }
+
+  /* ── STAT CARDS ── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px; margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--card);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    position: relative; overflow: hidden;
+    transition: border-color .2s, transform .15s;
+  }
+  .stat-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+  .stat-card::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+  }
+  .stat-card.blue::before { background: var(--blue); }
+  .stat-card.green::before { background: var(--green); }
+  .stat-card.red::before { background: var(--red); }
+  .stat-card.amber::before { background: var(--amber); }
+  .stat-label { font-size: 12px; color: var(--text3); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .stat-value { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
+  .stat-value.blue { color: var(--blue2); }
+  .stat-value.green { color: var(--green); }
+  .stat-value.red { color: var(--red); }
+  .stat-value.amber { color: var(--amber); }
+  .stat-sub { font-size: 12px; color: var(--text3); margin-top: 4px; }
+  .stat-icon {
+    position: absolute; right: 16px; top: 16px;
+    width: 36px; height: 36px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .stat-icon.blue { background: var(--blue-glow); }
+  .stat-icon.green { background: var(--green2); }
+  .stat-icon.red { background: var(--red2); }
+  .stat-icon.amber { background: var(--amber2); }
+
+  /* ── CHARTS ROW ── */
+  .charts-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 16px; margin-bottom: 28px;
+  }
+  @media (max-width: 768px) { .charts-row { grid-template-columns: 1fr; } }
+  .chart-card {
+    background: var(--card);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+  .chart-title { font-size: 14px; font-weight: 600; color: var(--text2); margin-bottom: 16px; }
+
+  /* ── TABLE ── */
+  .table-card {
+    background: var(--card);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden; margin-bottom: 28px;
+  }
+  .table-header {
+    padding: 16px 20px;
+    border-bottom: 0.5px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 12px;
+  }
+  .table-title { font-size: 15px; font-weight: 600; }
+  .search-box {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--bg3); border: 0.5px solid var(--border);
+    border-radius: 8px; padding: 7px 12px;
+  }
+  .search-box input {
+    background: none; border: none; outline: none;
+    color: var(--text); font-size: 13px; width: 180px;
+    font-family: inherit;
+  }
+  .search-box input::placeholder { color: var(--text3); }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  thead th {
+    padding: 12px 16px; text-align: left;
+    color: var(--text3); font-weight: 500; font-size: 12px;
+    text-transform: uppercase; letter-spacing: 0.4px;
+    background: var(--card2);
+    border-bottom: 0.5px solid var(--border);
+    white-space: nowrap;
+  }
+  tbody tr {
+    border-bottom: 0.5px solid var(--border);
+    transition: background .15s;
+  }
+  tbody tr:hover { background: var(--card2); }
+  tbody tr:last-child { border-bottom: none; }
+  td { padding: 13px 16px; color: var(--text); white-space: nowrap; }
+  .td-product { display: flex; align-items: center; gap: 10px; }
+  .product-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .badge {
+    display: inline-block; padding: 3px 9px;
+    border-radius: 6px; font-size: 11px; font-weight: 600;
+  }
+  .badge-profit { background: var(--green2); color: var(--green); }
+  .badge-loss { background: var(--red2); color: var(--red); }
+  .badge-model {
+    background: rgba(10,132,255,0.1); color: var(--blue2);
+    padding: 2px 8px; border-radius: 5px; font-size: 11px;
+  }
+  .text-green { color: var(--green); font-weight: 600; }
+  .text-red { color: var(--red); font-weight: 600; }
+  .text-blue { color: var(--blue2); font-weight: 600; }
+  .text-right { text-align: right; }
+  .empty-row td {
+    text-align: center; padding: 40px; color: var(--text3);
+  }
+
+  /* ── ADMIN FORM ── */
+  .admin-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 700px) { .admin-grid { grid-template-columns: 1fr; } }
+  .form-card {
+    background: var(--card);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+  }
+  .form-title {
+    font-size: 16px; font-weight: 700; margin-bottom: 20px;
+    padding-bottom: 14px; border-bottom: 0.5px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .form-title span { color: var(--blue); font-size: 20px; }
+  .form-group { margin-bottom: 16px; }
+  .form-label { font-size: 12px; font-weight: 500; color: var(--text2); margin-bottom: 7px; display: block; text-transform: uppercase; letter-spacing: 0.4px; }
+  .form-input, .form-select {
+    width: 100%; padding: 10px 13px;
+    background: var(--bg3); border: 0.5px solid var(--border);
+    border-radius: 9px; color: var(--text); font-size: 14px;
+    font-family: inherit; outline: none; transition: border-color .2s;
+  }
+  .form-input:focus, .form-select:focus { border-color: var(--blue); }
+  .form-select option { background: var(--bg3); color: var(--text); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .btn-submit {
+    width: 100%; padding: 12px;
+    background: var(--blue); color: #fff;
+    border: none; border-radius: 10px;
+    font-size: 15px; font-weight: 600;
+    font-family: inherit; cursor: pointer;
+    transition: opacity .2s, transform .1s;
+    margin-top: 8px;
+  }
+  .btn-submit:hover { opacity: 0.88; }
+  .btn-submit:active { transform: scale(0.98); }
+  .btn-submit:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+  .btn-delete {
+    background: none; border: none; cursor: pointer;
+    color: var(--red); font-size: 14px; padding: 4px 8px;
+    border-radius: 5px; transition: background .15s;
+    font-family: inherit;
+  }
+  .btn-delete:hover { background: var(--red2); }
+  .btn-cancel {
+    width: 100%; padding: 11px; margin-top: 10px;
+    background: var(--card2); color: var(--text2);
+    border: 0.5px solid var(--border2); border-radius: 10px;
+    font-size: 14px; font-weight: 600;
+    font-family: inherit; cursor: pointer;
+    transition: all .2s;
+  }
+  .btn-cancel:hover { color: var(--text); border-color: var(--blue); }
+  .action-cell { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+  .btn-icon {
+    width: 30px; height: 30px; border-radius: 8px;
+    border: 0.5px solid var(--border);
+    background: var(--bg3); cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-family: inherit; font-size: 14px;
+    transition: all .15s;
+  }
+  .btn-icon:hover { transform: translateY(-1px); border-color: var(--border2); }
+  .btn-icon.btn-edit { color: var(--blue2); }
+  .btn-icon.btn-edit:hover { background: var(--blue-glow); border-color: var(--blue); }
+  .btn-icon.btn-delete { color: var(--red); padding: 0; }
+  .btn-icon.btn-delete:hover { background: var(--red2); border-color: var(--red); }
+  .btn-export {
+    padding: 7px 16px; background: var(--card2);
+    border: 0.5px solid var(--border2); border-radius: 8px;
+    color: var(--text); font-size: 13px; font-weight: 500;
+    cursor: pointer; font-family: inherit; transition: all .2s;
+  }
+  .btn-export:hover { background: var(--blue); border-color: var(--blue); }
+
+  /* ── PROFIT CALC ── */
+  .calc-result {
+    margin-top: 16px; padding: 14px;
+    background: var(--bg3); border-radius: 10px;
+    border: 0.5px solid var(--border);
+  }
+  .calc-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 13px; }
+  .calc-row:last-child { margin-bottom: 0; border-top: 0.5px solid var(--border); padding-top: 8px; margin-top: 4px; }
+  .calc-row:last-child .cr-value { font-size: 16px; font-weight: 700; }
+  .cr-label { color: var(--text3); }
+  .cr-value { font-weight: 500; }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--green); color: #000;
+    padding: 10px 18px; border-radius: 10px;
+    font-size: 13px; font-weight: 600;
+    transform: translateY(80px); opacity: 0;
+    transition: all .3s; z-index: 999;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.error { background: var(--red); color: #fff; }
+
+  /* ── FILTER ROW ── */
+  .filter-row {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .filter-btn {
+    padding: 6px 14px; border-radius: 8px;
+    border: 0.5px solid var(--border); background: var(--card2);
+    color: var(--text2); font-size: 13px; cursor: pointer;
+    font-family: inherit; transition: all .2s;
+  }
+  .filter-btn:hover { border-color: var(--border2); color: var(--text); }
+  .filter-btn.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    nav { padding: 0 16px; }
+    .nav-brand span { font-size: 15px; }
+    .nav-tab { padding: 6px 10px; font-size: 13px; }
+    .page { padding: 20px 14px; }
+
+    /* Keep summary cards in one row on phone display */
+    .stats-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .stat-card {
+      min-width: 0;
+      padding: 14px 10px;
+      border-radius: 14px;
+    }
+    .stat-icon {
+      position: static;
+      width: 30px;
+      height: 30px;
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+    .stat-label {
+      font-size: 10px;
+      line-height: 1.25;
+      margin-bottom: 6px;
+      letter-spacing: 0.2px;
+    }
+    .stat-value {
+      font-size: clamp(18px, 5vw, 22px);
+      line-height: 1.15;
+      word-break: keep-all;
+    }
+    .stat-sub {
+      font-size: 10px;
+      line-height: 1.25;
+    }
+
+    .form-row { grid-template-columns: 1fr; }
+    .badge-time { display: none; }
+    .search-box input { width: 130px; }
+  }
+
+  @media (max-width: 380px) {
+    .stats-grid { gap: 6px; }
+    .stat-card { padding: 12px 8px; }
+    .stat-icon { width: 28px; height: 28px; font-size: 14px; }
+    .stat-label, .stat-sub { font-size: 9px; }
+    .stat-value { font-size: 17px; }
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 10px; }
+
+  /* ── PRODUCT COLORS ── */
+  .c-pro { background: #e5c547; }
+  .c-gen2 { background: #0a84ff; }
+  .c-gen3 { background: #30d158; }
+  .c-promax { background: #bf5af2; }
+  .c-basic { background: #ff9f0a; }
+
+  .trend-up::before { content: '▲ '; font-size: 10px; }
+  .trend-down::before { content: '▼ '; font-size: 10px; }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <div class="nav-brand">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M6 3a3 3 0 0 0-3 3v3a3 3 0 0 0 3 3h.5v6.5a1.5 1.5 0 0 0 3 0V12H10a3 3 0 0 0 3-3V6a3 3 0 0 0-3-3H6zm8 0a3 3 0 0 0-3 3v3a3 3 0 0 0 3 3h.5v6.5a1.5 1.5 0 0 0 3 0V12H18a3 3 0 0 0 3-3V6a3 3 0 0 0-3-3h-4z"/>
+    </svg>
+    <span>Air<em>Pods</em> <span style="color:var(--text3);font-weight:300">Sales</span></span>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="switchPage('dashboard', this)">📊 Dashboard</button>
+    <button class="nav-tab" onclick="switchPage('admin', this)">⚙️ Admin</button>
+    <button class="nav-tab" onclick="switchPage('products', this)">🧩 Models</button>
+  </div>
+  <div class="nav-right">
+    <span class="badge-time" id="clock"></span>
+  </div>
+</nav>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- PAGE: DASHBOARD                             -->
+<!-- ════════════════════════════════════════════ -->
+<div class="page active" id="page-dashboard">
+
+  <div class="section-header">
+    <div>
+      <div class="section-title">របាយការណ៍លក់ AirPods</div>
+      <div class="section-sub">ត្រួតពិនិត្យការលក់ ការទិញ និងប្រាក់ចំណេញ</div>
+    </div>
+    <button class="btn-export" onclick="exportCSV()">⬇ Export CSV</button>
+  </div>
+
+  <!-- STAT CARDS -->
+  <div class="stats-grid" id="statsGrid">
+    <div class="stat-card blue">
+      <div class="stat-icon blue">📦</div>
+      <div class="stat-label">ចំនួនលក់សរុប</div>
+      <div class="stat-value blue" id="s-total-qty">0</div>
+      <div class="stat-sub" id="s-count">0 transactions</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-icon green">💰</div>
+      <div class="stat-label">ប្រាក់លក់សរុប</div>
+      <div class="stat-value green" id="s-revenue">$0</div>
+      <div class="stat-sub" id="s-revenue-qty">0 ចំនួន</div>
+    </div>
+    <div class="stat-card amber">
+      <div class="stat-icon amber">📈</div>
+      <div class="stat-label">ប្រាក់ចំណេញ</div>
+      <div class="stat-value amber" id="s-profit">$0</div>
+      <div class="stat-sub" id="s-margin">0% margin</div>
+    </div>
+  </div>
+
+  <!-- FILTER ROW -->
+  <div class="filter-row" id="filterRow">
+    <button class="filter-btn active" onclick="setFilter('all',this)">ទាំងអស់</button>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-card">
+    <div class="table-header">
+      <div class="table-title">📋 តារាងការលក់</div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <button class="btn-export" onclick="cleanDuplicateSales()">🧹 សម្អាតស្ទួន</button>
+        <div class="search-box">
+          <span style="color:var(--text3);font-size:15px">🔍</span>
+          <input type="text" id="searchInput" placeholder="ស្វែងរក..." oninput="renderTable()">
+        </div>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th>ចំនួន</th>
+            <th>តម្លៃលក់</th>
+            <th>តម្លៃនាំចូល</th>
+            <th>ប្រាក់ចំណេញ</th>
+            <th>ថ្ងៃខែលក់</th>
+            <th>% Margin</th>
+            <th class="text-right">សកម្មភាព</th>
+          </tr>
+        </thead>
+        <tbody id="salesBody">
+          <tr class="empty-row"><td colspan="8">មិនទានមានទិន្នន័យ — សូមបញ្ចូលពី Admin</td></tr>
+        </tbody>
+        <tfoot id="salesFoot"></tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="chart-title">💹 ប្រាក់ចំណេញតាមការលក់</div>
+      <div style="position:relative;height:240px;">
+        <canvas id="chartLine" role="img" aria-label="Sales and profit trend chart">Sales trend data</canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">🍩 តំណែង Model</div>
+      <div style="position:relative;height:240px;">
+        <canvas id="chartDoughnut" role="img" aria-label="AirPods model distribution">Model breakdown</canvas>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- PAGE: ADMIN                                 -->
+<!-- ════════════════════════════════════════════ -->
+<div class="page" id="page-admin">
+
+  <div class="section-header">
+    <div>
+      <div class="section-title">⚙️ ផ្ទាំង Admin</div>
+      <div class="section-sub">បញ្ចូលទិន្នន័យការលក់ AirPods</div>
+    </div>
+  </div>
+
+  <div class="admin-grid">
+    <!-- FORM -->
+    <div class="form-card">
+      <div class="form-title"><span>➕</span> បញ្ចូលការលក់ថ្មី</div>
+
+      <div class="form-group">
+        <label class="form-label">ថ្ងៃទី</label>
+        <input type="date" class="form-input" id="f-date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Model AirPods</label>
+        <select class="form-select" id="f-model" onchange="onSaleModelChange()">
+          <option value="">-- ជ្រើសរើស Model --</option>
+        </select>
+        <div class="section-sub" style="margin-top:6px">បើមិនទាន់មាន Model សូមបង្កើតនៅផ្ទាំង Models ជាមុនសិន</div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">ចំនួនលក់</label>
+          <input type="number" class="form-input" id="f-qty" placeholder="0" min="1" oninput="calcPreview()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">ផ្នែករបស់</label>
+          <input type="text" class="form-input" id="f-buyer" placeholder="ឈ្មោះអ្នកទិញ">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">តម្លៃទិញចូល ($)</label>
+          <input type="number" class="form-input" id="f-cost" placeholder="0.00" step="0.01" oninput="calcPreview()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">តម្លៃលក់ចេញ ($)</label>
+          <input type="number" class="form-input" id="f-sell" placeholder="0.00" step="0.01" oninput="calcPreview()">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">កំណត់ចំណាំ</label>
+        <input type="text" class="form-input" id="f-note" placeholder="ជម្រើស...">
+      </div>
+
+      <!-- PREVIEW -->
+      <div class="calc-result" id="calcPreview">
+        <div class="calc-row"><span class="cr-label">ទិញចូលសរុប</span><span class="cr-value" id="p-cost">—</span></div>
+        <div class="calc-row"><span class="cr-label">លក់ចេញសរុប</span><span class="cr-value" id="p-sell">—</span></div>
+        <div class="calc-row">
+          <span class="cr-label" style="font-weight:600">ចំណេញ</span>
+          <span class="cr-value text-green" id="p-profit">—</span>
+        </div>
+      </div>
+
+      <button class="btn-submit" id="saleSubmitBtn" onclick="addSale()">💾 រក្សាទុក</button>
+      <button class="btn-cancel" id="saleCancelBtn" onclick="cancelSaleEdit()" style="display:none">↩ បោះបង់កែប្រែ</button>
+    </div>
+
+    <!-- QUICK STATS IN ADMIN -->
+    <div>
+      <div class="form-card" style="margin-bottom:16px">
+        <div class="form-title"><span>📊</span> សង្ខេបរហ័ស</div>
+        <div style="display:grid;gap:10px" id="adminStats">
+          <div style="color:var(--text3);font-size:13px;text-align:center;padding:20px">
+            មិនទានមានទិន្នន័យ
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-title"><span>📋</span> ប្រវត្តិចុងក្រោយ</div>
+        <div id="recentList" style="font-size:13px;color:var(--text3);text-align:center;padding:16px">
+          មិនទានមានទិន្នន័យ
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════ -->
+<!-- PAGE: MODELS / CATEGORY                     -->
+<!-- ════════════════════════════════════════════ -->
+<div class="page" id="page-products">
+
+  <div class="section-header">
+    <div>
+      <div class="section-title">🧩 Category & Model AirPods</div>
+      <div class="section-sub">បង្កើត Category, Model AirPods និងតម្លៃទិញចូល ដើម្បីប្រើនៅពេលបញ្ចូលការលក់</div>
+    </div>
+  </div>
+
+  <div class="admin-grid">
+    <div class="form-card">
+      <div class="form-title"><span>➕</span> បង្កើត Model ថ្មី</div>
+
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <input type="text" class="form-input" id="m-category" placeholder="ឧ. AirPods / AirPods Pro / Accessories" value="AirPods">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Model AirPods</label>
+        <input type="text" class="form-input" id="m-model" placeholder="ឧ. AirPods Pro 2 USB-C">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">តម្លៃទិញចូល ($)</label>
+        <input type="number" class="form-input" id="m-cost" placeholder="0.00" step="0.01" min="0">
+      </div>
+
+      <button class="btn-submit" id="productSubmitBtn" onclick="addProduct()">💾 រក្សាទុក Model</button>
+      <button class="btn-cancel" id="productCancelBtn" onclick="cancelProductEdit()" style="display:none">↩ បោះបង់កែប្រែ</button>
+    </div>
+
+    <div class="table-card" style="margin-bottom:0">
+      <div class="table-header">
+        <div class="table-title">📦 បញ្ជី Category / Model</div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>Model AirPods</th>
+              <th>តម្លៃទិញចូល</th>
+              <th>ថ្ងៃបង្កើត</th>
+              <th class="text-right">សកម្មភាព</th>
+            </tr>
+          </thead>
+          <tbody id="productBody">
+            <tr class="empty-row"><td colspan="5">មិនទាន់មាន Model — សូមបង្កើត Model ថ្មី</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="./firebase-config.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  onSnapshot,
+  query,
+  orderBy,
+  serverTimestamp,
+  getDocs,
+  writeBatch
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+/* ────────────────────────────────────────────────
+   FIREBASE CONFIG
+   Config is loaded from ./firebase-config.js
+──────────────────────────────────────────────── */
+const firebaseConfig = window.AIRPODS_FIREBASE_CONFIG || {};
+const FIRESTORE_COLLECTION = window.AIRPODS_FIRESTORE_COLLECTION || 'airpod_sales';
+const PRODUCTS_COLLECTION = window.AIRPODS_PRODUCTS_COLLECTION || 'airpod_models';
+
+/* ────────────────────────────────────────────────
+   DATA STORE
+──────────────────────────────────────────────── */
+let sales = [];
+let products = [];
+let activeFilter = 'all';
+let lineChart = null, donutChart = null;
+let db = null;
+let salesCollection = null;
+let productsCollection = null;
+let useFirestore = false;
+let firstFirestoreSnapshot = true;
+let editingSaleId = null;
+let editingProductId = null;
+let isSavingSale = false;
+
+const MODEL_COLORS = {
+  'AirPods Pro 2': '#e5c547',
+  'AirPods Gen 2': '#0a84ff',
+  'AirPods Gen 3': '#30d158',
+  'AirPods Pro Max': '#bf5af2',
+  'AirPods Basic': '#ff9f0a',
+};
+const MODEL_DOT = {
+  'AirPods Pro 2': 'c-pro',
+  'AirPods Gen 2': 'c-gen2',
+  'AirPods Gen 3': 'c-gen3',
+  'AirPods Pro Max': 'c-promax',
+  'AirPods Basic': 'c-basic',
+};
+
+const FALLBACK_COLORS = ['#e5c547', '#0a84ff', '#30d158', '#bf5af2', '#ff9f0a', '#64d2ff', '#ff375f', '#ffd60a'];
+
+function escapeHTML(value) {
+  return String(value ?? '').replace(/[&<>'"]/g, ch => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+  }[ch]));
+}
+
+function escapeAttr(value) {
+  return escapeHTML(value).replace(/`/g, '&#96;');
+}
+
+function jsString(value) {
+  return String(value ?? '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n').replace(/\r/g, '');
+}
+
+function getModelColor(model) {
+  if (MODEL_COLORS[model]) return MODEL_COLORS[model];
+  let hash = 0;
+  for (const char of String(model || '')) hash = char.charCodeAt(0) + ((hash << 5) - hash);
+  return FALLBACK_COLORS[Math.abs(hash) % FALLBACK_COLORS.length];
+}
+
+function uniqueModels() {
+  const set = new Set();
+  products.forEach(p => { if (p.model) set.add(p.model); });
+  sales.forEach(s => { if (s.model) set.add(s.model); });
+  return Array.from(set).sort((a, b) => a.localeCompare(b));
+}
+
+
+function firebaseConfigReady() {
+  return Boolean(
+    firebaseConfig.apiKey &&
+    firebaseConfig.projectId &&
+    !firebaseConfig.apiKey.includes('PASTE_') &&
+    !firebaseConfig.projectId.includes('PASTE_')
+  );
+}
+
+/* ── SAVE ── */
+function saveLocal() { localStorage.setItem('airpod_sales', JSON.stringify(sales)); }
+function saveProductsLocal() { localStorage.setItem('airpod_models', JSON.stringify(products)); }
+
+/* ── FIRESTORE INIT ── */
+function initFirestore() {
+  try {
+    const app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+    salesCollection = collection(db, FIRESTORE_COLLECTION);
+    productsCollection = collection(db, PRODUCTS_COLLECTION);
+    useFirestore = true;
+
+    const q = query(salesCollection, orderBy('date', 'desc'));
+    onSnapshot(q, async (snapshot) => {
+      sales = snapshot.docs.map(documentSnapshot => ({
+        id: documentSnapshot.id,
+        ...documentSnapshot.data()
+      }));
+
+      renderAll();
+      renderAdminStats();
+      renderRecent();
+
+      if (firstFirestoreSnapshot) {
+        firstFirestoreSnapshot = false;
+        await offerLocalStorageMigration(snapshot.empty);
+        showToast('✓ ភ្ជាប់ Firebase Firestore រួចរាល់');
+      }
+    }, (error) => {
+      console.error('Firestore listener error:', error);
+      useFirestore = false;
+      sales = loadLocalSales();
+      renderAll();
+      showToast('⚠️ Firestore error — កំពុងប្រើ localStorage ជាបណ្ដោះអាសន្ន', true);
+    });
+
+    const productsQuery = query(productsCollection, orderBy('model', 'asc'));
+    onSnapshot(productsQuery, (snapshot) => {
+      products = snapshot.docs.map(documentSnapshot => ({
+        id: documentSnapshot.id,
+        ...documentSnapshot.data()
+      }));
+      renderProducts();
+      renderModelOptions();
+      renderFilters();
+      renderCharts();
+    }, (error) => {
+      console.error('Firestore products listener error:', error);
+      products = loadLocalProducts();
+      renderProducts();
+      renderModelOptions();
+      showToast('⚠️ មិនអាចទាញ Model ពី Firebase បាន', true);
+    });
+  } catch (error) {
+    console.error('Firebase init error:', error);
+    useFirestore = false;
+    sales = loadLocalSales();
+    products = loadLocalProducts();
+    renderAll();
+    renderProducts();
+    renderModelOptions();
+    showToast('⚠️ Firebase config មិនត្រឹមត្រូវ — កំពុងប្រើ localStorage', true);
+  }
+}
+
+function loadLocalSales() {
+  try { return JSON.parse(localStorage.getItem('airpod_sales') || '[]'); }
+  catch { return []; }
+}
+
+function loadLocalProducts() {
+  try { return JSON.parse(localStorage.getItem('airpod_models') || '[]'); }
+  catch { return []; }
+}
+
+async function offerLocalStorageMigration(firestoreIsEmpty) {
+  if (!useFirestore || !firestoreIsEmpty) return;
+
+  const localSales = loadLocalSales();
+  if (!localSales.length) return;
+
+  const ok = confirm('រកឃើញទិន្នន័យចាស់ក្នុង browser នេះ។ ចង់ផ្ទេរទៅ Firebase Firestore ឥឡូវនេះទេ?');
+  if (!ok) return;
+
+  try {
+    const batch = writeBatch(db);
+    localSales.forEach((sale) => {
+      const ref = doc(salesCollection);
+      batch.set(ref, {
+        date: sale.date,
+        model: sale.model,
+        qty: Number(sale.qty) || 0,
+        cost: Number(sale.cost) || 0,
+        sell: Number(sale.sell) || 0,
+        buyer: sale.buyer || '',
+        note: sale.note || '',
+        createdAt: serverTimestamp(),
+        migratedFromLocalStorage: true
+      });
+    });
+    await batch.commit();
+    localStorage.removeItem('airpod_sales');
+    showToast('✓ បានផ្ទេរទិន្នន័យចាស់ទៅ Firebase');
+  } catch (error) {
+    console.error('Migration error:', error);
+    showToast('⚠️ ផ្ទេរទិន្នន័យចាស់មិនបាន', true);
+  }
+}
+
+/* ── CLOCK ── */
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent = now.toLocaleDateString('km-KH', { day:'2-digit', month:'short', year:'numeric' });
+}
+setInterval(updateClock, 1000); updateClock();
+
+/* ── SWITCH PAGE ── */
+function switchPage(name, tabEl) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+
+  if (tabEl) {
+    tabEl.classList.add('active');
+  } else {
+    const tab = Array.from(document.querySelectorAll('.nav-tab')).find(t =>
+      (t.getAttribute('onclick') || '').includes(`'${name}'`)
+    );
+    if (tab) tab.classList.add('active');
+  }
+
+  if (name === 'dashboard') { renderAll(); }
+  if (name === 'admin') { renderAdminStats(); renderRecent(); renderModelOptions(); }
+  if (name === 'products') { renderProducts(); }
+}
+
+/* ── TOAST ── */
+function showToast(msg, err) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (err ? ' error' : '');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+/* ── FORMAT ── */
+const fmt = v => '$' + Number(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+function saleSignature(sale) {
+  return [
+    String(sale.date || '').trim(),
+    String(sale.model || '').trim().toLowerCase(),
+    String(sale.category || '').trim().toLowerCase(),
+    Number(sale.qty || 0),
+    Number(sale.cost || 0).toFixed(2),
+    Number(sale.sell || 0).toFixed(2),
+    String(sale.buyer || '').trim().toLowerCase(),
+    String(sale.note || '').trim().toLowerCase()
+  ].join('|');
+}
+
+function hasDuplicateSale(sale, excludeId = null) {
+  const key = saleSignature(sale);
+  return sales.some(item => item.id !== excludeId && saleSignature(item) === key);
+}
+
+function saleCreatedMillis(sale) {
+  if (sale?.createdAt && typeof sale.createdAt.toMillis === 'function') return sale.createdAt.toMillis();
+  if (sale?.createdAt?.seconds) return sale.createdAt.seconds * 1000;
+  const idNumber = Number(sale?.id);
+  return Number.isFinite(idNumber) ? idNumber : 0;
+}
+
+/* ── FILTER ── */
+function setFilter(val, el) {
+  activeFilter = val;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderAll();
+}
+function filteredSales() {
+  const q = document.getElementById('searchInput')?.value.toLowerCase() || '';
+  return sales.filter(s => {
+    const modelOk = activeFilter === 'all' || s.model === activeFilter;
+    const searchOk = !q || String(s.model || '').toLowerCase().includes(q) || String(s.date || '').includes(q);
+    return modelOk && searchOk;
+  });
+}
+
+/* ── RENDER STATS ── */
+function renderStats() {
+  const data = filteredSales();
+  const totalQty = data.reduce((a, s) => a + (Number(s.qty) || 0), 0);
+  const totalCost = data.reduce((a, s) => a + (Number(s.cost) || 0) * (Number(s.qty) || 0), 0);
+  const totalRev = data.reduce((a, s) => a + (Number(s.sell) || 0) * (Number(s.qty) || 0), 0);
+  const totalProfit = totalRev - totalCost;
+  const margin = totalRev > 0 ? (totalProfit / totalRev * 100) : 0;
+
+  document.getElementById('s-total-qty').textContent = totalQty.toLocaleString('en-US');
+  document.getElementById('s-count').textContent = data.length + ' transactions';
+  document.getElementById('s-revenue').textContent = fmt(totalRev);
+  document.getElementById('s-revenue-qty').textContent = totalQty.toLocaleString('en-US') + ' ចំនួន';
+  document.getElementById('s-profit').textContent = fmt(totalProfit);
+  document.getElementById('s-margin').textContent = margin.toFixed(1) + '% margin';
+}
+
+/* ── RENDER TABLE ── */
+function renderTable() {
+  const data = filteredSales();
+  const body = document.getElementById('salesBody');
+  const foot = document.getElementById('salesFoot');
+
+  if (!data.length) {
+    body.innerHTML = '<tr class="empty-row"><td colspan="8">មិនទានមានទិន្នន័យ — សូមបញ្ចូលពី Admin</td></tr>';
+    foot.innerHTML = '';
+    return;
+  }
+
+  let html = '';
+  let totQty = 0, totCost = 0, totSell = 0;
+  data.forEach((s) => {
+    const qty = Number(s.qty) || 0;
+    const costEach = Number(s.cost) || 0;
+    const sellEach = Number(s.sell) || 0;
+    const cost = costEach * qty;
+    const sell = sellEach * qty;
+    const profit = sell - cost;
+    const margin = sell > 0 ? (profit / sell * 100) : 0;
+    totQty += qty; totCost += cost; totSell += sell;
+    html += `<tr>
+      <td><div class="td-product">
+        <div class="product-dot" style="background:${getModelColor(s.model)}"></div>
+        <span class="badge-model">${escapeHTML(s.model || '')}</span>
+        ${s.category ? `<span style="color:var(--text3);font-size:11px">${escapeHTML(s.category)}</span>` : ''}
+      </div></td>
+      <td style="text-align:center;font-weight:600">${qty}</td>
+      <td class="text-right">${fmt(sellEach)}</td>
+      <td class="text-right">${fmt(costEach)}</td>
+      <td class="text-right">
+        <span class="badge ${profit>=0?'badge-profit':'badge-loss'}">${profit>=0?'+':''}${fmt(profit)}</span>
+      </td>
+      <td>${escapeHTML(s.date || '')}</td>
+      <td class="text-right" style="color:${margin>=0?'var(--green)':'var(--red)'}">${margin.toFixed(1)}%</td>
+      <td class="text-right">
+        <div class="action-cell">
+          <button class="btn-icon btn-edit" title="Edit" onclick="editSale('${escapeAttr(s.id)}')">✎</button>
+          <button class="btn-icon btn-delete" title="Delete" onclick="deleteSale('${escapeAttr(s.id)}')">🗑</button>
+        </div>
+      </td>
+    </tr>`;
+  });
+  body.innerHTML = html;
+
+  const totProfit = totSell - totCost;
+  const totalMargin = totSell > 0 ? (totProfit / totSell * 100) : 0;
+  foot.innerHTML = `<tr style="background:var(--card2);font-weight:700">
+    <td style="padding:12px 16px;color:var(--text3);font-size:12px">សរុប</td>
+    <td style="padding:12px 16px;text-align:center">${totQty}</td>
+    <td class="text-right" style="padding:12px 16px;color:var(--green)">${fmt(totSell)}</td>
+    <td class="text-right" style="padding:12px 16px;color:var(--blue2)">${fmt(totCost)}</td>
+    <td class="text-right" style="padding:12px 16px">
+      <span class="badge ${totProfit>=0?'badge-profit':'badge-loss'}">${totProfit>=0?'+':''}${fmt(totProfit)}</span>
+    </td>
+    <td style="padding:12px 16px;color:var(--text3)">—</td>
+    <td class="text-right" style="padding:12px 16px;color:${totProfit>=0?'var(--green)':'var(--red)'}">${totalMargin.toFixed(1)}%</td>
+    <td></td>
+  </tr>`;
+}
+
+/* ── RENDER CHARTS ── */
+function renderCharts() {
+  const data = [...sales].sort((a,b) => String(a.date || '').localeCompare(String(b.date || ''))).slice(-12);
+
+  const labels = data.map(s => String(s.date || '').substring(5));
+  const revenues = data.map(s => +((Number(s.sell) || 0) * (Number(s.qty) || 0)).toFixed(2));
+  const profits = data.map(s => +(((Number(s.sell) || 0) - (Number(s.cost) || 0)) * (Number(s.qty) || 0)).toFixed(2));
+
+  if (lineChart) lineChart.destroy();
+  lineChart = new Chart(document.getElementById('chartLine'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'ប្រាក់លក់', data: revenues,
+          borderColor: '#0a84ff', backgroundColor: 'rgba(10,132,255,0.08)',
+          fill: true, tension: 0.4, pointRadius: 3, borderWidth: 2,
+          borderDash: [], pointBackgroundColor: '#0a84ff'
+        },
+        {
+          label: 'ចំណេញ', data: profits,
+          borderColor: '#30d158', backgroundColor: 'rgba(48,209,88,0.06)',
+          fill: true, tension: 0.4, pointRadius: 3, borderWidth: 2,
+          borderDash: [4, 3], pointBackgroundColor: '#30d158'
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: true, position: 'top', labels: { color: '#aeaeb2', font: { size: 11 }, boxWidth: 14 } } },
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#636366', font: { size: 11 }, maxRotation: 45 } },
+        y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#636366', font: { size: 11 }, callback: v => '$' + v } }
+      }
+    }
+  });
+
+  const modelCount = {};
+  sales.forEach(s => { modelCount[s.model] = (modelCount[s.model] || 0) + (Number(s.qty) || 0); });
+  const modelLabels = Object.keys(modelCount).filter(Boolean);
+  const modelData = modelLabels.map(m => modelCount[m]);
+  const modelColors = modelLabels.map(m => getModelColor(m));
+
+  if (donutChart) donutChart.destroy();
+  donutChart = new Chart(document.getElementById('chartDoughnut'), {
+    type: 'doughnut',
+    data: {
+      labels: modelLabels,
+      datasets: [{ data: modelData, backgroundColor: modelColors, borderWidth: 0, hoverOffset: 4 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'right', labels: { color: '#aeaeb2', font: { size: 11 }, boxWidth: 12, padding: 10 } } },
+      cutout: '65%'
+    }
+  });
+}
+
+/* ── RENDER ALL ── */
+function renderAll() {
+  renderFilters();
+  renderStats();
+  renderTable();
+  renderCharts();
+}
+
+/* ── MODEL / CATEGORY RENDERING ── */
+function renderFilters() {
+  const row = document.getElementById('filterRow');
+  if (!row) return;
+  const models = uniqueModels();
+  let html = `<button class="filter-btn ${activeFilter === 'all' ? 'active' : ''}" onclick="setFilter('all',this)">ទាំងអស់</button>`;
+  html += models.map(model => `
+    <button class="filter-btn ${activeFilter === model ? 'active' : ''}" onclick="setFilter('${jsString(model)}',this)">${escapeHTML(model)}</button>
+  `).join('');
+  row.innerHTML = html;
+}
+
+function renderModelOptions() {
+  const select = document.getElementById('f-model');
+  if (!select) return;
+  const previousValue = select.value;
+  let html = '<option value="">-- ជ្រើសរើស Model --</option>';
+  html += products.map(item => {
+    const category = item.category ? `${item.category} · ` : '';
+    const label = `${category}${item.model} — ${fmt(Number(item.cost) || 0)}`;
+    return `<option value="${escapeAttr(item.id)}">${escapeHTML(label)}</option>`;
+  }).join('');
+  select.innerHTML = html;
+  if (previousValue && products.some(item => item.id === previousValue)) select.value = previousValue;
+}
+
+function renderProducts() {
+  const body = document.getElementById('productBody');
+  if (!body) return;
+
+  if (!products.length) {
+    body.innerHTML = '<tr class="empty-row"><td colspan="5">មិនទាន់មាន Model — សូមបង្កើត Model ថ្មី</td></tr>';
+    renderModelOptions();
+    return;
+  }
+
+  body.innerHTML = products.map(item => `
+    <tr>
+      <td>${escapeHTML(item.category || 'AirPods')}</td>
+      <td>
+        <div class="td-product">
+          <div class="product-dot" style="background:${getModelColor(item.model)}"></div>
+          <span class="badge-model">${escapeHTML(item.model || '')}</span>
+        </div>
+      </td>
+      <td class="text-right text-blue">${fmt(Number(item.cost) || 0)}</td>
+      <td style="color:var(--text3)">${escapeHTML(item.createdDate || '')}</td>
+      <td class="text-right">
+        <div class="action-cell">
+          <button class="btn-icon btn-edit" title="Edit" onclick="editProduct('${escapeAttr(item.id)}')">✎</button>
+          <button class="btn-icon btn-delete" title="Delete" onclick="deleteProduct('${escapeAttr(item.id)}')">🗑</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+  renderModelOptions();
+}
+
+function onSaleModelChange() {
+  const productId = document.getElementById('f-model').value;
+  const product = products.find(item => item.id === productId);
+  if (product) {
+    const costInput = document.getElementById('f-cost');
+    costInput.value = Number(product.cost || 0).toFixed(2);
+  }
+  calcPreview();
+}
+
+function resetProductForm() {
+  editingProductId = null;
+  document.getElementById('m-category').value = 'AirPods';
+  document.getElementById('m-model').value = '';
+  document.getElementById('m-cost').value = '';
+  const submit = document.getElementById('productSubmitBtn');
+  const cancel = document.getElementById('productCancelBtn');
+  if (submit) submit.textContent = '💾 រក្សាទុក Model';
+  if (cancel) cancel.style.display = 'none';
+}
+
+function cancelProductEdit() {
+  resetProductForm();
+  showToast('↩ បានបោះបង់ការកែប្រែ Model');
+}
+
+function editProduct(id) {
+  const product = products.find(item => item.id === id);
+  if (!product) return showToast('⚠️ រកមិនឃើញ Model នេះ', true);
+
+  editingProductId = id;
+  document.getElementById('m-category').value = product.category || 'AirPods';
+  document.getElementById('m-model').value = product.model || '';
+  document.getElementById('m-cost').value = Number(product.cost || 0).toFixed(2);
+
+  const submit = document.getElementById('productSubmitBtn');
+  const cancel = document.getElementById('productCancelBtn');
+  if (submit) submit.textContent = '💾 កែប្រែ Model';
+  if (cancel) cancel.style.display = 'block';
+
+  switchPage('products');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+async function addProduct() {
+  const category = document.getElementById('m-category').value.trim() || 'AirPods';
+  const model = document.getElementById('m-model').value.trim();
+  const cost = parseFloat(document.getElementById('m-cost').value);
+
+  if (!model) return showToast('⚠️ សូមបញ្ចូល Model AirPods', true);
+  if (isNaN(cost) || cost < 0) return showToast('⚠️ តម្លៃទិញចូលមិនត្រឹមត្រូវ', true);
+
+  const duplicate = products.some(item =>
+    item.id !== editingProductId &&
+    String(item.model || '').toLowerCase() === model.toLowerCase() &&
+    String(item.category || 'AirPods').toLowerCase() === category.toLowerCase()
+  );
+  if (duplicate) return showToast('⚠️ Model នេះមានរួចហើយ', true);
+
+  const product = {
+    category,
+    model,
+    cost,
+    createdDate: editingProductId
+      ? (products.find(item => item.id === editingProductId)?.createdDate || new Date().toISOString().slice(0, 10))
+      : new Date().toISOString().slice(0, 10)
+  };
+
+  try {
+    if (editingProductId) {
+      if (useFirestore && productsCollection) {
+        await updateDoc(doc(db, PRODUCTS_COLLECTION, editingProductId), { ...product, updatedAt: serverTimestamp() });
+      } else {
+        products = products.map(item => item.id === editingProductId ? { ...item, ...product } : item);
+        saveProductsLocal();
+        renderProducts();
+        renderFilters();
+      }
+      showToast('✓ បានកែប្រែ Model រួចរាល់');
+    } else {
+      if (useFirestore && productsCollection) {
+        await addDoc(productsCollection, { ...product, createdAt: serverTimestamp() });
+      } else {
+        products.push({ id: Date.now().toString(), ...product });
+        saveProductsLocal();
+        renderProducts();
+        renderFilters();
+      }
+      showToast('✓ បានបង្កើត Model រួចរាល់');
+    }
+    resetProductForm();
+  } catch (error) {
+    console.error('Save product error:', error);
+    showToast('⚠️ រក្សាទុក Model មិនបាន — សូមពិនិត្យ Firebase Rules', true);
+  }
+}
+
+async function deleteProduct(id) {
+  const product = products.find(item => item.id === id);
+  if (!product) return;
+  const usedCount = sales.filter(s => s.productId === id || s.model === product.model).length;
+  const message = usedCount > 0
+    ? `Model នេះមានប្រើក្នុងការលក់ ${usedCount} ដង។ លុបតែបញ្ជី Model ប៉ុណ្ណោះ មិនលុបប្រវត្តិលក់ទេ។ បន្តលុប?`
+    : 'លុប Model នេះ?';
+  if (!confirm(message)) return;
+
+  try {
+    if (useFirestore) {
+      await deleteDoc(doc(db, PRODUCTS_COLLECTION, id));
+    } else {
+      products = products.filter(item => item.id !== id);
+      saveProductsLocal();
+      renderProducts();
+      renderFilters();
+    }
+    if (editingProductId === id) resetProductForm();
+    showToast('✓ បានលុប Model រួចរាល់');
+  } catch (error) {
+    console.error('Delete product error:', error);
+    showToast('⚠️ លុប Model មិនបាន', true);
+  }
+}
+
+/* ── ADD SALE ── */
+async function addSale() {
+  if (isSavingSale) return showToast('⏳ កំពុងរក្សាទុក សូមរង់ចាំ...', true);
+
+  const submitBtn = document.getElementById('saleSubmitBtn');
+  const originalSubmitText = submitBtn ? submitBtn.textContent : '';
+
+  const date = document.getElementById('f-date').value;
+  const productId = document.getElementById('f-model').value;
+  const product = products.find(item => item.id === productId);
+  const currentSale = editingSaleId ? sales.find(s => s.id === editingSaleId) : null;
+  const model = product ? product.model : (currentSale?.model || '');
+  const category = product ? (product.category || '') : (currentSale?.category || '');
+  const qty = parseInt(document.getElementById('f-qty').value, 10);
+  const cost = parseFloat(document.getElementById('f-cost').value);
+  const sell = parseFloat(document.getElementById('f-sell').value);
+  const buyer = document.getElementById('f-buyer').value.trim();
+  const note = document.getElementById('f-note').value.trim();
+
+  if (!date) return showToast('⚠️ សូមជ្រើសរើសថ្ងៃទី', true);
+  if (!productId && !currentSale) return showToast('⚠️ សូមជ្រើស Model', true);
+  if (!model) return showToast('⚠️ សូមជ្រើស Model', true);
+  if (!qty || qty < 1) return showToast('⚠️ ចំនួនត្រូវតែ > 0', true);
+  if (isNaN(cost) || cost < 0) return showToast('⚠️ តម្លៃនាំចូលមិនត្រឹមត្រូវ', true);
+  if (isNaN(sell) || sell < 0) return showToast('⚠️ តម្លៃលក់មិនត្រឹមត្រូវ', true);
+
+  const sale = { date, model, category, productId: productId || currentSale?.productId || '', qty, cost, sell, buyer, note };
+
+  if (hasDuplicateSale(sale, editingSaleId)) {
+    return showToast('⚠️ ការលក់នេះមានរួចហើយ — បើលក់ដូចគ្នា សូមបន្ថែមចំនួនក្នុង record ដដែល', true);
+  }
+
+  isSavingSale = true;
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = '⏳ កំពុងរក្សាទុក...';
+  }
+
+  try {
+    if (editingSaleId) {
+      if (useFirestore && salesCollection) {
+        await updateDoc(doc(db, FIRESTORE_COLLECTION, editingSaleId), { ...sale, updatedAt: serverTimestamp() });
+      } else {
+        sales = sales.map(item => item.id === editingSaleId ? { ...item, ...sale } : item);
+        saveLocal();
+        renderAll();
+        renderAdminStats();
+        renderRecent();
+      }
+      showToast('✓ បានកែប្រែការលក់រួចរាល់');
+    } else {
+      if (useFirestore && salesCollection) {
+        await addDoc(salesCollection, { ...sale, createdAt: serverTimestamp() });
+      } else {
+        sales.push({ id: Date.now().toString(), ...sale });
+        saveLocal();
+        renderAll();
+        renderAdminStats();
+        renderRecent();
+      }
+      showToast('✓ បានរក្សាទុករួចរាល់');
+    }
+
+    resetSaleForm();
+  } catch (error) {
+    console.error('Save sale error:', error);
+    showToast('⚠️ រក្សាទុកមិនបាន — សូមពិនិត្យ Firebase Rules/Config', true);
+  } finally {
+    isSavingSale = false;
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = editingSaleId ? '💾 កែប្រែការលក់' : (originalSubmitText || '💾 រក្សាទុក');
+    }
+  }
+}
+
+function editSale(id) {
+  const sale = sales.find(item => item.id === id);
+  if (!sale) return showToast('⚠️ រកមិនឃើញការលក់នេះ', true);
+
+  editingSaleId = id;
+  switchPage('admin');
+  renderModelOptions();
+
+  const product = products.find(item => item.id === sale.productId) ||
+    products.find(item => item.model === sale.model && (!sale.category || item.category === sale.category));
+
+  document.getElementById('f-date').value = sale.date || new Date().toISOString().slice(0, 10);
+  document.getElementById('f-model').value = product ? product.id : '';
+  document.getElementById('f-qty').value = Number(sale.qty) || '';
+  document.getElementById('f-cost').value = Number(sale.cost || 0).toFixed(2);
+  document.getElementById('f-sell').value = Number(sale.sell || 0).toFixed(2);
+  document.getElementById('f-buyer').value = sale.buyer || '';
+  document.getElementById('f-note').value = sale.note || '';
+
+  const submit = document.getElementById('saleSubmitBtn');
+  const cancel = document.getElementById('saleCancelBtn');
+  if (submit) submit.textContent = '💾 កែប្រែការលក់';
+  if (cancel) cancel.style.display = 'block';
+  calcPreview();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function resetSaleForm() {
+  editingSaleId = null;
+  document.getElementById('f-date').value = new Date().toISOString().slice(0, 10);
+  ['f-model','f-qty','f-cost','f-sell','f-buyer','f-note'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (el.tagName === 'SELECT') el.value = '';
+    else el.value = '';
+  });
+  document.getElementById('p-cost').textContent = '—';
+  document.getElementById('p-sell').textContent = '—';
+  document.getElementById('p-profit').textContent = '—';
+  document.getElementById('p-profit').className = 'cr-value text-green';
+  const submit = document.getElementById('saleSubmitBtn');
+  const cancel = document.getElementById('saleCancelBtn');
+  if (submit) submit.textContent = '💾 រក្សាទុក';
+  if (cancel) cancel.style.display = 'none';
+}
+
+function cancelSaleEdit() {
+  resetSaleForm();
+  showToast('↩ បានបោះបង់ការកែប្រែការលក់');
+}
+
+async function deleteSale(id) {
+  if (!confirm('លុបការលក់នេះ?')) return;
+  try {
+    if (useFirestore) {
+      await deleteDoc(doc(db, FIRESTORE_COLLECTION, id));
+    } else {
+      sales = sales.filter(s => s.id !== id);
+      saveLocal();
+      renderAll();
+      renderAdminStats();
+      renderRecent();
+    }
+    if (editingSaleId === id) resetSaleForm();
+    showToast('✓ បានលុបរួចរាល់');
+  } catch (error) {
+    console.error('Delete sale error:', error);
+    showToast('⚠️ លុបមិនបាន', true);
+  }
+}
+
+async function cleanDuplicateSales() {
+  const keep = new Set();
+  const duplicates = [];
+  const ordered = [...sales].sort((a, b) => saleCreatedMillis(a) - saleCreatedMillis(b));
+
+  ordered.forEach((sale) => {
+    const key = saleSignature(sale);
+    if (keep.has(key)) duplicates.push(sale);
+    else keep.add(key);
+  });
+
+  if (!duplicates.length) return showToast('✓ មិនមានទិន្នន័យស្ទួនទេ');
+
+  if (!confirm(`រកឃើញទិន្នន័យស្ទួន ${duplicates.length} record។ លុបទិន្នន័យស្ទួន និងទុកតែ record ដំបូងមួយ?`)) return;
+
+  try {
+    if (useFirestore && db) {
+      const batch = writeBatch(db);
+      duplicates.forEach((sale) => batch.delete(doc(db, FIRESTORE_COLLECTION, sale.id)));
+      await batch.commit();
+    } else {
+      const duplicateIds = new Set(duplicates.map(item => item.id));
+      sales = sales.filter(item => !duplicateIds.has(item.id));
+      saveLocal();
+      renderAll();
+      renderAdminStats();
+      renderRecent();
+    }
+    showToast(`✓ បានសម្អាតទិន្នន័យស្ទួន ${duplicates.length} record`);
+  } catch (error) {
+    console.error('Clean duplicate sales error:', error);
+    showToast('⚠️ សម្អាតទិន្នន័យស្ទួនមិនបាន', true);
+  }
+}
+
+/* ── CALC PREVIEW ── */
+function calcPreview() {
+  const qty = parseInt(document.getElementById('f-qty').value, 10) || 0;
+  const cost = parseFloat(document.getElementById('f-cost').value) || 0;
+  const sell = parseFloat(document.getElementById('f-sell').value) || 0;
+  const tc = cost * qty, ts = sell * qty, tp = ts - tc;
+  document.getElementById('p-cost').textContent = tc > 0 ? fmt(tc) : '—';
+  document.getElementById('p-sell').textContent = ts > 0 ? fmt(ts) : '—';
+  const pp = document.getElementById('p-profit');
+  pp.textContent = (tc > 0 || ts > 0) ? (tp >= 0 ? '+' : '') + fmt(tp) : '—';
+  pp.className = 'cr-value ' + (tp >= 0 ? 'text-green' : 'text-red');
+}
+
+/* ── ADMIN STATS ── */
+function renderAdminStats() {
+  const el = document.getElementById('adminStats');
+  if (!sales.length) {
+    el.innerHTML = '<div style="color:var(--text3);font-size:13px;text-align:center;padding:20px">មិនទានមានទិន្នន័យ</div>';
+    return;
+  }
+  const totalProfit = sales.reduce((a,s) => a + ((Number(s.sell) || 0) - (Number(s.cost) || 0)) * (Number(s.qty) || 0), 0);
+  const totalSell = sales.reduce((a,s) => a + (Number(s.sell) || 0) * (Number(s.qty) || 0), 0);
+  const totalQty = sales.reduce((a,s) => a + (Number(s.qty) || 0), 0);
+  el.innerHTML = `
+    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid var(--border)">
+      <span style="color:var(--text3);font-size:13px">🧮 ចំនួនសរុប</span>
+      <span style="font-weight:600">${totalQty}</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid var(--border)">
+      <span style="color:var(--text3);font-size:13px">💰 ប្រាក់លក់</span>
+      <span style="font-weight:600;color:var(--blue2)">${fmt(totalSell)}</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid var(--border)">
+      <span style="color:var(--text3);font-size:13px">📈 ចំណេញ</span>
+      <span style="font-weight:700;color:${totalProfit>=0?'var(--green)':'var(--red)'}">${fmt(totalProfit)}</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;padding:8px 0">
+      <span style="color:var(--text3);font-size:13px">🗒 Transactions</span>
+      <span style="font-weight:600">${sales.length}</span>
+    </div>
+  `;
+}
+
+/* ── RECENT LIST ── */
+function renderRecent() {
+  const el = document.getElementById('recentList');
+  const last5 = [...sales].slice(0, 5);
+  if (!last5.length) { el.innerHTML = '<div style="color:var(--text3);font-size:13px;text-align:center;padding:16px">មិនទានមានទិន្នន័យ</div>'; return; }
+  el.innerHTML = last5.map(s => {
+    const profit = ((Number(s.sell) || 0) - (Number(s.cost) || 0)) * (Number(s.qty) || 0);
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--border)">
+      <div>
+        <div style="font-size:13px;font-weight:500">${escapeHTML(s.model || '')}</div>
+        <div style="font-size:11px;color:var(--text3)">${s.date || ''} · ${Number(s.qty) || 0} ចំនួន</div>
+      </div>
+      <span class="badge ${profit>=0?'badge-profit':'badge-loss'}">${profit>=0?'+':''}${fmt(profit)}</span>
+    </div>`;
+  }).join('');
+}
+
+function csvCell(value) {
+  const text = String(value ?? '');
+  return (text.includes('\"') || text.includes(',') || text.includes('\n')) ? '"' + text.replace(/"/g, '""') + '"' : text;
+}
+
+/* ── EXPORT CSV ── */
+function exportCSV() {
+  if (!sales.length) return showToast('⚠️ គ្មានទិន្នន័យ', true);
+  const headers = ['Model','ចំនួន','តម្លៃលក់','តម្លៃនាំចូល','ប្រាក់ចំណេញ','ថ្ងៃខែលក់','% Margin'];
+  const rows = sales.map(s => {
+    const qty = Number(s.qty) || 0;
+    const costEach = Number(s.cost) || 0;
+    const sellEach = Number(s.sell) || 0;
+    const cost = costEach * qty, sell = sellEach * qty, profit = sell - cost;
+    const margin = sell > 0 ? (profit/sell*100).toFixed(1) : 0;
+    return [s.model,qty,sellEach,costEach,profit.toFixed(2),s.date,margin].map(csvCell).join(',');
+  });
+  const csv = '\uFEFF' + [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'AirPods_Sales_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  showToast('✓ Export CSV រួចរាល់');
+}
+
+async function clearAllFirestoreSales() {
+  if (!useFirestore || !salesCollection) return showToast('⚠️ Firebase មិនទាន់ភ្ជាប់', true);
+  if (!confirm('លុបទិន្នន័យលក់ទាំងអស់ពី Firebase?')) return;
+  try {
+    const snapshot = await getDocs(salesCollection);
+    const batch = writeBatch(db);
+    snapshot.forEach(documentSnapshot => batch.delete(documentSnapshot.ref));
+    await batch.commit();
+    showToast('✓ បានលុបទិន្នន័យទាំងអស់');
+  } catch (error) {
+    console.error('Clear sales error:', error);
+    showToast('⚠️ លុបទិន្នន័យទាំងអស់មិនបាន', true);
+  }
+}
+
+/* ── SET DEFAULT DATE ── */
+document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
+
+/* ── EXPOSE FUNCTIONS FOR INLINE HTML HANDLERS ── */
+Object.assign(window, {
+  switchPage,
+  setFilter,
+  renderTable,
+  addSale,
+  editSale,
+  deleteSale,
+  cancelSaleEdit,
+  calcPreview,
+  exportCSV,
+  clearAllFirestoreSales,
+  cleanDuplicateSales,
+  renderProducts,
+  addProduct,
+  editProduct,
+  deleteProduct,
+  cancelProductEdit,
+  onSaleModelChange
+});
+
+/* ── INIT ── */
+if (firebaseConfigReady()) {
+  initFirestore();
+} else {
+  sales = loadLocalSales();
+  products = loadLocalProducts();
+  renderAll();
+  renderProducts();
+  renderModelOptions();
+  renderAdminStats();
+  renderRecent();
+  showToast('⚠️ សូមដាក់ Firebase config ដើម្បីប្រើ Firestore', true);
+}
+</script>
+</body>
+</html>
