@@ -31,6 +31,14 @@
     --text3: #636366;
     --radius: 16px;
     --radius-sm: 10px;
+
+    /* Note color palette */
+    --note-yellow: #ffd60a;
+    --note-blue: #0a84ff;
+    --note-green: #30d158;
+    --note-pink: #ff375f;
+    --note-purple: #bf5af2;
+    --note-orange: #ff9f0a;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -73,6 +81,8 @@
   /* ── PAGES ── */
   .page { display: none; padding: 28px 24px; max-width: 1300px; margin: 0 auto; }
   .page.active { display: block; }
+  .page-note-wrap { display: none; }
+  .page-note-wrap.active { display: flex; }
 
   /* ── SECTION HEADER ── */
   .section-header {
@@ -324,52 +334,420 @@
   .filter-btn:hover { border-color: var(--border2); color: var(--text); }
   .filter-btn.active { background: var(--blue); border-color: var(--blue); color: #fff; }
 
+  /* ══════════════════════════════════════════
+     NOTE PAGE STYLES
+  ══════════════════════════════════════════ */
+  #page-note {
+    padding: 0;
+    max-width: 100%;
+    height: calc(100vh - 60px);
+    display: none;
+    flex-direction: row;
+  }
+  #page-note.active { display: flex; }
+
+  /* Sidebar */
+  .note-sidebar {
+    width: 300px;
+    min-width: 260px;
+    max-width: 340px;
+    border-right: 0.5px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    background: var(--bg2);
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .note-sidebar-header {
+    padding: 18px 16px 12px;
+    border-bottom: 0.5px solid var(--border);
+    flex-shrink: 0;
+  }
+  .note-sidebar-title {
+    font-size: 18px; font-weight: 700; letter-spacing: -0.4px;
+    margin-bottom: 12px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .note-new-btn {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: var(--blue); border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; color: #fff; flex-shrink: 0;
+    transition: opacity .2s, transform .15s;
+  }
+  .note-new-btn:hover { opacity: 0.85; transform: scale(1.08); }
+  .note-search {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--bg3); border: 0.5px solid var(--border);
+    border-radius: 9px; padding: 8px 11px;
+  }
+  .note-search input {
+    background: none; border: none; outline: none;
+    color: var(--text); font-size: 13px; width: 100%;
+    font-family: inherit;
+  }
+  .note-search input::placeholder { color: var(--text3); }
+  .note-search-icon { color: var(--text3); font-size: 14px; flex-shrink: 0; }
+
+  /* Filter tabs for notes */
+  .note-type-filter {
+    display: flex; gap: 4px;
+    padding: 10px 16px 0;
+    flex-shrink: 0;
+  }
+  .note-type-filter-btn {
+    padding: 4px 10px; border-radius: 7px;
+    border: 0.5px solid var(--border); background: transparent;
+    color: var(--text3); font-size: 11px; font-weight: 500;
+    cursor: pointer; font-family: inherit; transition: all .2s;
+    white-space: nowrap;
+  }
+  .note-type-filter-btn:hover { color: var(--text); border-color: var(--border2); }
+  .note-type-filter-btn.active { background: var(--card2); color: var(--text); border-color: var(--border2); }
+
+  /* Note list */
+  .note-list {
+    flex: 1; overflow-y: auto; padding: 10px 10px;
+  }
+  .note-list::-webkit-scrollbar { width: 4px; }
+  .note-list::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+  .note-item {
+    padding: 13px 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-bottom: 6px;
+    border: 0.5px solid transparent;
+    transition: all .18s;
+    position: relative;
+    overflow: hidden;
+  }
+  .note-item::before {
+    content: '';
+    position: absolute; left: 0; top: 0; bottom: 0;
+    width: 3px;
+    border-radius: 2px 0 0 2px;
+    opacity: 0;
+    transition: opacity .2s;
+  }
+  .note-item:hover { background: var(--card); border-color: var(--border); }
+  .note-item:hover::before { opacity: 1; }
+  .note-item.active { background: var(--card); border-color: var(--border2); }
+  .note-item.active::before { opacity: 1; }
+  .note-item[data-color="yellow"]::before { background: var(--note-yellow); }
+  .note-item[data-color="blue"]::before { background: var(--note-blue); }
+  .note-item[data-color="green"]::before { background: var(--note-green); }
+  .note-item[data-color="pink"]::before { background: var(--note-pink); }
+  .note-item[data-color="purple"]::before { background: var(--note-purple); }
+  .note-item[data-color="orange"]::before { background: var(--note-orange); }
+  .note-item-top {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 8px; margin-bottom: 5px;
+  }
+  .note-item-title {
+    font-size: 13.5px; font-weight: 600;
+    color: var(--text); line-height: 1.3;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    flex: 1;
+  }
+  .note-pin-icon { font-size: 11px; color: var(--amber); flex-shrink: 0; }
+  .note-item-preview {
+    font-size: 12px; color: var(--text3);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    margin-bottom: 6px; line-height: 1.4;
+  }
+  .note-item-meta {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 10.5px; color: var(--text3);
+  }
+  .note-type-badge {
+    padding: 2px 6px; border-radius: 5px;
+    font-size: 10px; font-weight: 600;
+    background: var(--card2); color: var(--text3);
+  }
+  .note-empty-list {
+    text-align: center; padding: 40px 16px;
+    color: var(--text3); font-size: 13px;
+  }
+  .note-empty-list div { font-size: 32px; margin-bottom: 10px; }
+
+  /* Editor panel */
+  .note-editor-panel {
+    flex: 1; display: flex; flex-direction: column;
+    overflow: hidden;
+    background: var(--bg);
+  }
+  .note-editor-toolbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 24px;
+    border-bottom: 0.5px solid var(--border);
+    gap: 12px; flex-wrap: wrap;
+    flex-shrink: 0;
+  }
+  .note-editor-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .note-editor-right { display: flex; align-items: center; gap: 8px; }
+
+  /* Type selector */
+  .note-type-select {
+    display: flex; gap: 3px;
+    background: var(--card2); border-radius: 9px; padding: 3px;
+    border: 0.5px solid var(--border);
+  }
+  .note-type-btn {
+    padding: 5px 11px; border-radius: 7px; border: none; cursor: pointer;
+    font-size: 12px; font-weight: 600; font-family: inherit;
+    color: var(--text3); background: transparent; transition: all .18s;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .note-type-btn.active { background: var(--bg2); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+
+  /* Color picker */
+  .note-color-picker { display: flex; gap: 5px; align-items: center; }
+  .note-color-dot {
+    width: 16px; height: 16px; border-radius: 50%; cursor: pointer;
+    border: 2px solid transparent; transition: all .15s;
+    flex-shrink: 0;
+  }
+  .note-color-dot:hover { transform: scale(1.2); }
+  .note-color-dot.selected { border-color: #fff; transform: scale(1.15); }
+  .nc-yellow { background: var(--note-yellow); }
+  .nc-blue   { background: var(--note-blue); }
+  .nc-green  { background: var(--note-green); }
+  .nc-pink   { background: var(--note-pink); }
+  .nc-purple { background: var(--note-purple); }
+  .nc-orange { background: var(--note-orange); }
+
+  /* Toolbar buttons */
+  .note-toolbar-btn {
+    padding: 6px 12px; border-radius: 8px;
+    border: 0.5px solid var(--border); background: var(--card2);
+    color: var(--text2); font-size: 12px; font-weight: 500;
+    cursor: pointer; font-family: inherit; transition: all .18s;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .note-toolbar-btn:hover { color: var(--text); border-color: var(--border2); }
+  .note-toolbar-btn.save { background: var(--blue); color: #fff; border-color: var(--blue); }
+  .note-toolbar-btn.save:hover { opacity: 0.88; }
+  .note-toolbar-btn.danger:hover { background: var(--red2); border-color: var(--red); color: var(--red); }
+  .note-toolbar-btn.pin-active { color: var(--amber); border-color: var(--amber); background: var(--amber2); }
+
+  /* Editor content area */
+  .note-editor-body {
+    flex: 1; overflow-y: auto; padding: 28px 32px;
+  }
+  .note-editor-body::-webkit-scrollbar { width: 5px; }
+  .note-editor-body::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+  .note-title-input {
+    width: 100%; background: none; border: none; outline: none;
+    font-family: 'Outfit', 'Noto Sans Khmer', sans-serif;
+    font-size: 26px; font-weight: 700; color: var(--text);
+    letter-spacing: -0.5px; margin-bottom: 8px;
+    resize: none; line-height: 1.3;
+  }
+  .note-title-input::placeholder { color: var(--text3); }
+  .note-date-display {
+    font-size: 12px; color: var(--text3); margin-bottom: 20px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .note-date-display span { color: var(--border2); }
+
+  /* Plain text area */
+  .note-content-plain {
+    width: 100%; background: none; border: none; outline: none;
+    font-family: 'Outfit', 'Noto Sans Khmer', sans-serif;
+    font-size: 15px; color: var(--text2); line-height: 1.8;
+    resize: none; min-height: 400px;
+  }
+  .note-content-plain::placeholder { color: var(--text3); }
+
+  /* Checklist */
+  .checklist-container { display: flex; flex-direction: column; gap: 6px; }
+  .checklist-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 9px 12px; border-radius: 10px;
+    border: 0.5px solid transparent;
+    transition: all .15s; group;
+  }
+  .checklist-item:hover { background: var(--card); border-color: var(--border); }
+  .checklist-check {
+    width: 18px; height: 18px; border-radius: 5px;
+    border: 1.5px solid var(--border2);
+    background: none; cursor: pointer; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .15s; margin-top: 2px;
+  }
+  .checklist-check.checked { background: var(--green); border-color: var(--green); }
+  .checklist-check.checked::after { content: '✓'; color: #000; font-size: 11px; font-weight: 700; }
+  .checklist-text {
+    flex: 1; background: none; border: none; outline: none;
+    font-family: 'Outfit', 'Noto Sans Khmer', sans-serif;
+    font-size: 14px; color: var(--text); line-height: 1.5;
+    resize: none; min-height: 22px;
+  }
+  .checklist-text.done { color: var(--text3); text-decoration: line-through; }
+  .checklist-del {
+    width: 22px; height: 22px; border-radius: 6px;
+    border: none; background: none; cursor: pointer;
+    color: var(--text3); font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: all .15s; flex-shrink: 0;
+  }
+  .checklist-item:hover .checklist-del { opacity: 1; }
+  .checklist-del:hover { color: var(--red); background: var(--red2); }
+  .checklist-add-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px; border-radius: 10px;
+    border: 0.5px dashed var(--border);
+    background: none; cursor: pointer; font-family: inherit;
+    color: var(--text3); font-size: 13px; transition: all .2s;
+    margin-top: 4px; width: 100%;
+  }
+  .checklist-add-btn:hover { border-color: var(--blue); color: var(--blue2); background: var(--blue-glow); }
+
+  /* Schedule */
+  .schedule-container { display: flex; flex-direction: column; gap: 10px; }
+  .schedule-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 12px 14px; border-radius: 12px;
+    background: var(--card); border: 0.5px solid var(--border);
+    transition: all .15s;
+  }
+  .schedule-item:hover { border-color: var(--border2); }
+  .schedule-time-col { flex-shrink: 0; }
+  .schedule-time {
+    background: var(--bg3); border: 0.5px solid var(--border);
+    border-radius: 7px; padding: 5px 8px;
+    font-size: 12px; color: var(--text2); font-weight: 600;
+    outline: none; font-family: inherit; cursor: pointer;
+    color-scheme: dark;
+  }
+  .schedule-time:focus { border-color: var(--blue); }
+  .schedule-content-col { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+  .schedule-label-input {
+    background: none; border: none; outline: none;
+    font-family: 'Outfit', 'Noto Sans Khmer', sans-serif;
+    font-size: 14px; font-weight: 600; color: var(--text);
+    width: 100%;
+  }
+  .schedule-label-input::placeholder { color: var(--text3); }
+  .schedule-desc-input {
+    background: none; border: none; outline: none;
+    font-family: 'Outfit', 'Noto Sans Khmer', sans-serif;
+    font-size: 12.5px; color: var(--text3);
+    width: 100%; resize: none;
+  }
+  .schedule-desc-input::placeholder { color: var(--border2); }
+  .schedule-tag-select {
+    background: var(--bg3); border: 0.5px solid var(--border);
+    border-radius: 6px; padding: 4px 7px;
+    font-size: 11px; color: var(--text2); font-family: inherit;
+    outline: none; cursor: pointer;
+    color-scheme: dark; align-self: flex-start;
+  }
+  .schedule-del-btn {
+    width: 28px; height: 28px; border-radius: 8px;
+    border: none; background: none; cursor: pointer;
+    color: var(--text3); font-size: 15px;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: all .15s; flex-shrink: 0; margin-top: 2px;
+  }
+  .schedule-item:hover .schedule-del-btn { opacity: 1; }
+  .schedule-del-btn:hover { color: var(--red); background: var(--red2); border-radius: 8px; }
+  .schedule-add-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px; border-radius: 12px;
+    border: 0.5px dashed var(--border);
+    background: none; cursor: pointer; font-family: inherit;
+    color: var(--text3); font-size: 13px; transition: all .2s;
+    width: 100%;
+  }
+  .schedule-add-btn:hover { border-color: var(--blue); color: var(--blue2); background: var(--blue-glow); }
+  .schedule-priority { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
+  .sp-high { background: var(--red); }
+  .sp-mid  { background: var(--amber); }
+  .sp-low  { background: var(--green); }
+
+  /* Empty editor state */
+  .note-editor-empty {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    color: var(--text3); gap: 12px; padding: 40px;
+    text-align: center;
+  }
+  .note-editor-empty-icon { font-size: 56px; opacity: 0.4; }
+  .note-editor-empty-title { font-size: 18px; font-weight: 600; color: var(--text2); }
+  .note-editor-empty-sub { font-size: 13px; color: var(--text3); }
+  .note-editor-empty-btn {
+    margin-top: 8px; padding: 10px 24px;
+    background: var(--blue); color: #fff; border: none;
+    border-radius: 10px; font-size: 14px; font-weight: 600;
+    font-family: inherit; cursor: pointer; transition: opacity .2s;
+  }
+  .note-editor-empty-btn:hover { opacity: 0.85; }
+
+  /* Progress bar for checklist */
+  .checklist-progress {
+    margin-bottom: 18px;
+  }
+  .checklist-progress-top {
+    display: flex; justify-content: space-between;
+    font-size: 12px; color: var(--text3); margin-bottom: 6px;
+  }
+  .checklist-progress-bar {
+    height: 4px; background: var(--card2); border-radius: 4px; overflow: hidden;
+  }
+  .checklist-progress-fill {
+    height: 100%; background: var(--green); border-radius: 4px;
+    transition: width .3s ease;
+  }
+
+  /* Divider for schedule date */
+  .schedule-date-divider {
+    display: flex; align-items: center; gap: 10px;
+    margin: 12px 0 8px; font-size: 11px; color: var(--text3);
+  }
+  .schedule-date-divider::before,
+  .schedule-date-divider::after {
+    content: ''; flex: 1; height: 0.5px; background: var(--border);
+  }
+  .schedule-date-input {
+    background: var(--card2); border: 0.5px solid var(--border);
+    border-radius: 7px; padding: 4px 10px;
+    font-size: 12px; color: var(--text2); font-weight: 600;
+    outline: none; font-family: inherit; cursor: pointer;
+    color-scheme: dark;
+  }
+  .schedule-date-input:focus { border-color: var(--blue); }
+
   /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    #page-note { flex-direction: column; height: auto; }
+    .note-sidebar { width: 100%; max-width: 100%; min-width: 0; border-right: none; border-bottom: 0.5px solid var(--border); max-height: 300px; }
+    .note-editor-panel { min-height: 60vh; }
+    .note-editor-body { padding: 18px 16px; }
+  }
   @media (max-width: 600px) {
     nav { padding: 0 16px; }
     .nav-brand span { font-size: 15px; }
     .nav-tab { padding: 6px 10px; font-size: 13px; }
     .page { padding: 20px 14px; }
-
-    /* Keep summary cards in one row on phone display */
     .stats-grid {
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 8px;
-      margin-bottom: 20px;
+      gap: 8px; margin-bottom: 20px;
     }
-    .stat-card {
-      min-width: 0;
-      padding: 14px 10px;
-      border-radius: 14px;
-    }
-    .stat-icon {
-      position: static;
-      width: 30px;
-      height: 30px;
-      margin-bottom: 8px;
-      font-size: 15px;
-    }
-    .stat-label {
-      font-size: 10px;
-      line-height: 1.25;
-      margin-bottom: 6px;
-      letter-spacing: 0.2px;
-    }
-    .stat-value {
-      font-size: clamp(18px, 5vw, 22px);
-      line-height: 1.15;
-      word-break: keep-all;
-    }
-    .stat-sub {
-      font-size: 10px;
-      line-height: 1.25;
-    }
-
+    .stat-card { min-width: 0; padding: 14px 10px; border-radius: 14px; }
+    .stat-icon { position: static; width: 30px; height: 30px; margin-bottom: 8px; font-size: 15px; }
+    .stat-label { font-size: 10px; line-height: 1.25; margin-bottom: 6px; letter-spacing: 0.2px; }
+    .stat-value { font-size: clamp(18px, 5vw, 22px); line-height: 1.15; word-break: keep-all; }
+    .stat-sub { font-size: 10px; line-height: 1.25; }
     .form-row { grid-template-columns: 1fr; }
     .badge-time { display: none; }
     .search-box input { width: 130px; }
+    .note-title-input { font-size: 20px; }
+    .note-editor-toolbar { padding: 10px 14px; gap: 8px; }
+    .note-type-btn { padding: 4px 8px; font-size: 11px; }
   }
-
   @media (max-width: 380px) {
     .stats-grid { gap: 6px; }
     .stat-card { padding: 12px 8px; }
@@ -405,6 +783,7 @@
     <span>Air<em>Pods</em> <span style="color:var(--text3);font-weight:300">Sales</span></span>
   </div>
   <div class="nav-tabs">
+    <button class="nav-tab" onclick="switchPage('note', this)">📝 Note</button>
     <button class="nav-tab active" onclick="switchPage('dashboard', this)">📊 Dashboard</button>
     <button class="nav-tab" onclick="switchPage('admin', this)">⚙️ Admin</button>
     <button class="nav-tab" onclick="switchPage('stock', this)">📦 Stock</button>
@@ -417,6 +796,122 @@
 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- PAGE: NOTE                                  -->
+<!-- ════════════════════════════════════════════ -->
+<div id="page-note">
+  <!-- SIDEBAR -->
+  <div class="note-sidebar">
+    <div class="note-sidebar-header">
+      <div class="note-sidebar-title">
+        <span>📝 Notes</span>
+        <button class="note-new-btn" onclick="noteCreateNew()" title="Note ថ្មី (Ctrl+N)">+</button>
+      </div>
+      <div class="note-search">
+        <span class="note-search-icon">🔍</span>
+        <input type="text" id="noteSearchInput" placeholder="ស្វែងរក Note..." oninput="noteRenderList()">
+      </div>
+    </div>
+    <div class="note-type-filter">
+      <button class="note-type-filter-btn active" data-filter="all" onclick="noteSetFilter('all',this)">ទាំងអស់</button>
+      <button class="note-type-filter-btn" data-filter="plain" onclick="noteSetFilter('plain',this)">📄 Plain</button>
+      <button class="note-type-filter-btn" data-filter="checklist" onclick="noteSetFilter('checklist',this)">✅ Check</button>
+      <button class="note-type-filter-btn" data-filter="schedule" onclick="noteSetFilter('schedule',this)">📅 Schedule</button>
+    </div>
+    <div class="note-list" id="noteList">
+      <div class="note-empty-list">
+        <div>📝</div>
+        <div>មិនទាន់មាន Note</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDITOR PANEL -->
+  <div class="note-editor-panel">
+    <!-- EMPTY STATE -->
+    <div class="note-editor-empty" id="noteEditorEmpty">
+      <div class="note-editor-empty-icon">📝</div>
+      <div class="note-editor-empty-title">ជ្រើសរើស Note ឬបង្កើតថ្មី</div>
+      <div class="note-editor-empty-sub">ចំណាំ · ចំណងជើង · កាលវិភាគ — ទាំងអស់នៅទីនេះ</div>
+      <button class="note-editor-empty-btn" onclick="noteCreateNew()">+ Note ថ្មី</button>
+    </div>
+
+    <!-- EDITOR (hidden until note selected) -->
+    <div id="noteEditorContent" style="display:none;flex-direction:column;flex:1;overflow:hidden;display:none;">
+      <!-- TOOLBAR -->
+      <div class="note-editor-toolbar">
+        <div class="note-editor-left">
+          <!-- Type selector -->
+          <div class="note-type-select">
+            <button class="note-type-btn active" data-type="plain" onclick="noteSetType('plain',this)">📄 Plain</button>
+            <button class="note-type-btn" data-type="checklist" onclick="noteSetType('checklist',this)">✅ Checklist</button>
+            <button class="note-type-btn" data-type="schedule" onclick="noteSetType('schedule',this)">📅 Schedule</button>
+          </div>
+          <!-- Color picker -->
+          <div class="note-color-picker">
+            <div class="note-color-dot nc-yellow selected" data-color="yellow" onclick="noteSetColor('yellow',this)" title="Yellow"></div>
+            <div class="note-color-dot nc-blue"   data-color="blue"   onclick="noteSetColor('blue',this)"   title="Blue"></div>
+            <div class="note-color-dot nc-green"  data-color="green"  onclick="noteSetColor('green',this)"  title="Green"></div>
+            <div class="note-color-dot nc-pink"   data-color="pink"   onclick="noteSetColor('pink',this)"   title="Pink"></div>
+            <div class="note-color-dot nc-purple" data-color="purple" onclick="noteSetColor('purple',this)" title="Purple"></div>
+            <div class="note-color-dot nc-orange" data-color="orange" onclick="noteSetColor('orange',this)" title="Orange"></div>
+          </div>
+        </div>
+        <div class="note-editor-right">
+          <button class="note-toolbar-btn" id="notePinBtn" onclick="noteTogglePin()" title="Pin Note">📌 Pin</button>
+          <button class="note-toolbar-btn save" onclick="noteSave()" title="រក្សាទុក (Ctrl+S)">💾 រក្សាទុក</button>
+          <button class="note-toolbar-btn danger" onclick="noteDelete()" title="លុប Note">🗑</button>
+        </div>
+      </div>
+
+      <!-- EDITOR BODY -->
+      <div class="note-editor-body" id="noteEditorBody">
+        <!-- Title -->
+        <textarea class="note-title-input" id="noteTitle" placeholder="ចំណងជើង Note..." rows="1" oninput="noteAutoResizeTitle(this)"></textarea>
+        <div class="note-date-display" id="noteDateDisplay">
+          <span>📅</span> <span id="noteDateText"></span>
+          <span>·</span> <span id="noteWordCount" style="color:var(--text3)">0 ពាក្យ</span>
+        </div>
+
+        <!-- Plain text area -->
+        <div id="notePlainArea">
+          <textarea class="note-content-plain" id="notePlainContent" placeholder="សរសេរអ្វីក៏បានដែរ... (ចំណាំ, គំនិត, ការងារ...)" oninput="noteUpdateWordCount()"></textarea>
+        </div>
+
+        <!-- Checklist area -->
+        <div id="noteChecklistArea" style="display:none">
+          <div class="checklist-progress" id="checklistProgress">
+            <div class="checklist-progress-top">
+              <span id="checklistProgressLabel">0 / 0 ត្រូវបានធ្វើ</span>
+              <span id="checklistProgressPct">0%</span>
+            </div>
+            <div class="checklist-progress-bar">
+              <div class="checklist-progress-fill" id="checklistProgressFill" style="width:0%"></div>
+            </div>
+          </div>
+          <div class="checklist-container" id="checklistItems"></div>
+          <button class="checklist-add-btn" onclick="noteAddChecklistItem()">
+            <span style="font-size:16px">＋</span> បន្ថែម Item
+          </button>
+        </div>
+
+        <!-- Schedule area -->
+        <div id="noteScheduleArea" style="display:none">
+          <div style="margin-bottom:12px">
+            <label class="form-label" style="margin-bottom:6px;display:block">📅 ថ្ងៃខែ</label>
+            <input type="date" class="schedule-date-input" id="scheduleDate">
+          </div>
+          <div class="schedule-container" id="scheduleItems"></div>
+          <button class="schedule-add-btn" onclick="noteAddScheduleItem()">
+            <span style="font-size:16px">＋</span> បន្ថែម Event/Task
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <!-- ════════════════════════════════════════════ -->
 <!-- PAGE: DASHBOARD                             -->
@@ -434,7 +929,6 @@
     </div>
   </div>
 
-  <!-- STAT CARDS -->
   <div class="stats-grid" id="statsGrid">
     <div class="stat-card blue">
       <div class="stat-icon blue">📦</div>
@@ -456,12 +950,10 @@
     </div>
   </div>
 
-  <!-- FILTER ROW -->
   <div class="filter-row" id="filterRow">
     <button class="filter-btn active" onclick="setFilter('all',this)">ទាំងអស់</button>
   </div>
 
-  <!-- TABLE -->
   <div class="table-card">
     <div class="table-header">
       <div class="table-title">📋 តារាងការលក់</div>
@@ -495,41 +987,35 @@
     </div>
   </div>
 
-  <!-- CHARTS -->
   <div class="charts-row">
     <div class="chart-card">
       <div class="chart-title">💹 ប្រាក់ចំណេញតាមការលក់</div>
       <div style="position:relative;height:240px;">
-        <canvas id="chartLine" role="img" aria-label="Sales and profit trend chart">Sales trend data</canvas>
+        <canvas id="chartLine"></canvas>
       </div>
     </div>
     <div class="chart-card">
       <div class="chart-title">🍩 តំណែង Model</div>
       <div style="position:relative;height:240px;">
-        <canvas id="chartDoughnut" role="img" aria-label="AirPods model distribution">Model breakdown</canvas>
+        <canvas id="chartDoughnut"></canvas>
       </div>
     </div>
   </div>
-
 </div>
 
 <!-- ════════════════════════════════════════════ -->
 <!-- PAGE: ADMIN                                 -->
 <!-- ════════════════════════════════════════════ -->
 <div class="page" id="page-admin">
-
   <div class="section-header">
     <div>
       <div class="section-title">⚙️ ផ្ទាំង Admin</div>
       <div class="section-sub">បញ្ចូលទិន្នន័យការលក់ AirPods</div>
     </div>
   </div>
-
   <div class="admin-grid">
-    <!-- FORM -->
     <div class="form-card">
       <div class="form-title"><span>➕</span> បញ្ចូលការលក់ថ្មី</div>
-
       <div class="form-group">
         <label class="form-label">ថ្ងៃទី</label>
         <input type="date" class="form-input" id="f-date">
@@ -565,8 +1051,6 @@
         <label class="form-label">កំណត់ចំណាំ</label>
         <input type="text" class="form-input" id="f-note" placeholder="ជម្រើស...">
       </div>
-
-      <!-- PREVIEW -->
       <div class="calc-result" id="calcPreview">
         <div class="calc-row"><span class="cr-label">ទិញចូលសរុប</span><span class="cr-value" id="p-cost">—</span></div>
         <div class="calc-row"><span class="cr-label">លក់ចេញសរុប</span><span class="cr-value" id="p-sell">—</span></div>
@@ -575,22 +1059,16 @@
           <span class="cr-value text-green" id="p-profit">—</span>
         </div>
       </div>
-
       <button class="btn-submit" id="saleSubmitBtn" onclick="addSale()">💾 រក្សាទុក</button>
       <button class="btn-cancel" id="saleCancelBtn" onclick="cancelSaleEdit()" style="display:none">↩ បោះបង់កែប្រែ</button>
     </div>
-
-    <!-- QUICK STATS IN ADMIN -->
     <div>
       <div class="form-card" style="margin-bottom:16px">
         <div class="form-title"><span>📊</span> សង្ខេបរហ័ស</div>
         <div style="display:grid;gap:10px" id="adminStats">
-          <div style="color:var(--text3);font-size:13px;text-align:center;padding:20px">
-            មិនទានមានទិន្នន័យ
-          </div>
+          <div style="color:var(--text3);font-size:13px;text-align:center;padding:20px">មិនទានមានទិន្នន័យ</div>
         </div>
       </div>
-
       <div class="form-card">
         <div class="form-title"><span>📋</span> ប្រវត្តិចុងក្រោយ</div>
         <div id="recentList" style="font-size:13px;color:var(--text3);text-align:center;padding:16px">
@@ -601,28 +1079,23 @@
   </div>
 </div>
 
-
 <!-- ════════════════════════════════════════════ -->
 <!-- PAGE: STOCK                                 -->
 <!-- ════════════════════════════════════════════ -->
 <div class="page" id="page-stock">
-
   <div class="section-header">
     <div>
       <div class="section-title">📦 Stock ទំនិញ</div>
       <div class="section-sub">បញ្ចូល stock ចូលថ្មី និងតាមដានចំនួននៅសល់តាម Model</div>
     </div>
   </div>
-
   <div class="admin-grid">
     <div class="form-card">
       <div class="form-title"><span>➕</span> Add Stock ថ្មី</div>
-
       <div class="form-group">
         <label class="form-label">ថ្ងៃខែចូល Stock</label>
         <input type="date" class="form-input" id="st-date">
       </div>
-
       <div class="form-group">
         <label class="form-label">Model AirPods</label>
         <select class="form-select" id="st-model" onchange="onStockModelChange()">
@@ -630,7 +1103,6 @@
         </select>
         <div class="section-sub" style="margin-top:6px">បើមិនទាន់មាន Model សូមបង្កើតនៅផ្ទាំង Models ជាមុនសិន</div>
       </div>
-
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">ចំនួន Stock ចូល</label>
@@ -641,16 +1113,13 @@
           <input type="number" class="form-input" id="st-cost" placeholder="0.00" min="0" step="0.01">
         </div>
       </div>
-
       <div class="form-group">
         <label class="form-label">កំណត់ចំណាំ</label>
         <input type="text" class="form-input" id="st-note" placeholder="ឧ. Supplier / លេខវិក្កយបត្រ...">
       </div>
-
       <button class="btn-submit" id="stockSubmitBtn" onclick="addStock()">💾 រក្សាទុក Stock</button>
       <button class="btn-cancel" id="stockCancelBtn" onclick="cancelStockEdit()" style="display:none">↩ បោះបង់កែប្រែ</button>
     </div>
-
     <div class="form-card">
       <div class="form-title"><span>📊</span> សង្ខេប Stock</div>
       <div style="display:grid;gap:10px" id="stockStats">
@@ -658,7 +1127,6 @@
       </div>
     </div>
   </div>
-
   <div class="table-card">
     <div class="table-header">
       <div class="table-title">📦 Stock នៅសល់តាម Model</div>
@@ -667,12 +1135,7 @@
       <table>
         <thead>
           <tr>
-            <th>Model</th>
-            <th>Stock ចូល</th>
-            <th>បានលក់</th>
-            <th>នៅសល់</th>
-            <th>តម្លៃមធ្យម</th>
-            <th>តម្លៃ Stock នៅសល់</th>
+            <th>Model</th><th>Stock ចូល</th><th>បានលក់</th><th>នៅសល់</th><th>តម្លៃមធ្យម</th><th>តម្លៃ Stock នៅសល់</th>
           </tr>
         </thead>
         <tbody id="stockBalanceBody">
@@ -681,7 +1144,6 @@
       </table>
     </div>
   </div>
-
   <div class="table-card">
     <div class="table-header">
       <div class="table-title">🧾 ប្រវត្តិ Add Stock</div>
@@ -690,12 +1152,7 @@
       <table>
         <thead>
           <tr>
-            <th>ថ្ងៃខែចូល</th>
-            <th>Model</th>
-            <th>ចំនួន</th>
-            <th>តម្លៃទិញចូល</th>
-            <th>តម្លៃសរុប</th>
-            <th>កំណត់ចំណាំ</th>
+            <th>ថ្ងៃខែចូល</th><th>Model</th><th>ចំនួន</th><th>តម្លៃទិញចូល</th><th>តម្លៃសរុប</th><th>កំណត់ចំណាំ</th>
             <th class="text-right action-col">សកម្មភាព</th>
           </tr>
         </thead>
@@ -707,42 +1164,34 @@
   </div>
 </div>
 
-
 <!-- ════════════════════════════════════════════ -->
-<!-- PAGE: MODELS / CATEGORY                     -->
+<!-- PAGE: MODELS                                -->
 <!-- ════════════════════════════════════════════ -->
 <div class="page" id="page-products">
-
   <div class="section-header">
     <div>
       <div class="section-title">🧩 Category & Model AirPods</div>
-      <div class="section-sub">បង្កើត Category, Model AirPods និងតម្លៃទិញចូល ដើម្បីប្រើនៅពេលបញ្ចូលការលក់</div>
+      <div class="section-sub">បង្កើត Category, Model AirPods និងតម្លៃទិញចូល</div>
     </div>
   </div>
-
   <div class="admin-grid">
     <div class="form-card">
       <div class="form-title"><span>➕</span> បង្កើត Model ថ្មី</div>
-
       <div class="form-group">
         <label class="form-label">Category</label>
         <input type="text" class="form-input" id="m-category" placeholder="ឧ. AirPods / AirPods Pro / Accessories" value="AirPods">
       </div>
-
       <div class="form-group">
         <label class="form-label">Model AirPods</label>
         <input type="text" class="form-input" id="m-model" placeholder="ឧ. AirPods Pro 2 USB-C">
       </div>
-
       <div class="form-group">
         <label class="form-label">តម្លៃទិញចូល ($)</label>
         <input type="number" class="form-input" id="m-cost" placeholder="0.00" step="0.01" min="0">
       </div>
-
       <button class="btn-submit" id="productSubmitBtn" onclick="addProduct()">💾 រក្សាទុក Model</button>
       <button class="btn-cancel" id="productCancelBtn" onclick="cancelProductEdit()" style="display:none">↩ បោះបង់កែប្រែ</button>
     </div>
-
     <div class="table-card" style="margin-bottom:0">
       <div class="table-header">
         <div class="table-title">📦 បញ្ជី Category / Model</div>
@@ -751,10 +1200,7 @@
         <table>
           <thead>
             <tr>
-              <th>Category</th>
-              <th>Model AirPods</th>
-              <th>តម្លៃទិញចូល</th>
-              <th>ថ្ងៃបង្កើត</th>
+              <th>Category</th><th>Model AirPods</th><th>តម្លៃទិញចូល</th><th>ថ្ងៃបង្កើត</th>
               <th class="text-right action-col">សកម្មភាព</th>
             </tr>
           </thead>
@@ -771,1358 +1217,807 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import {
-  getFirestore,
-  collection,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  doc,
-  onSnapshot,
-  query,
-  orderBy,
-  serverTimestamp,
-  getDocs,
-  writeBatch
+  getFirestore, collection, addDoc, updateDoc, deleteDoc,
+  doc, onSnapshot, query, orderBy, serverTimestamp, getDocs, writeBatch
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 /* ────────────────────────────────────────────────
    FIREBASE CONFIG
-   Config is loaded from ./firebase-config.js
 ──────────────────────────────────────────────── */
 const firebaseConfig = window.AIRPODS_FIREBASE_CONFIG || {};
-const FIRESTORE_COLLECTION = window.AIRPODS_FIRESTORE_COLLECTION || 'airpod_sales';
-const PRODUCTS_COLLECTION = window.AIRPODS_PRODUCTS_COLLECTION || 'airpod_models';
-const STOCK_COLLECTION = window.AIRPODS_STOCK_COLLECTION || 'airpod_stock';
+const FIRESTORE_COLLECTION  = window.AIRPODS_FIRESTORE_COLLECTION  || 'airpod_sales';
+const PRODUCTS_COLLECTION   = window.AIRPODS_PRODUCTS_COLLECTION   || 'airpod_models';
+const STOCK_COLLECTION      = window.AIRPODS_STOCK_COLLECTION      || 'airpod_stock';
+const NOTES_COLLECTION      = 'airpod_notes';
 
-/* ────────────────────────────────────────────────
-   DATA STORE
-──────────────────────────────────────────────── */
-let sales = [];
-let products = [];
-let stockItems = [];
+/* ── DATA STORE ── */
+let sales = [], products = [], stockItems = [], notes = [];
 let activeFilter = 'all';
 let lineChart = null, donutChart = null;
-let db = null;
-let salesCollection = null;
-let productsCollection = null;
-let stockCollection = null;
-let useFirestore = false;
-let firstFirestoreSnapshot = true;
-let editingSaleId = null;
-let editingProductId = null;
-let editingStockId = null;
+let db = null, salesCollection = null, productsCollection = null, stockCollection = null, notesCollection = null;
+let useFirestore = false, firstFirestoreSnapshot = true;
+let editingSaleId = null, editingProductId = null, editingStockId = null;
 let isSavingSale = false;
 
-const MODEL_COLORS = {
-  'AirPods Pro 2': '#e5c547',
-  'AirPods Gen 2': '#0a84ff',
-  'AirPods Gen 3': '#30d158',
-  'AirPods Pro Max': '#bf5af2',
-  'AirPods Basic': '#ff9f0a',
-};
-const MODEL_DOT = {
-  'AirPods Pro 2': 'c-pro',
-  'AirPods Gen 2': 'c-gen2',
-  'AirPods Gen 3': 'c-gen3',
-  'AirPods Pro Max': 'c-promax',
-  'AirPods Basic': 'c-basic',
-};
+/* ── NOTE STATE ── */
+let activeNoteId = null;
+let noteFilter = 'all';
+let currentNoteType = 'plain';
+let currentNoteColor = 'yellow';
+let currentNoteChecklist = [];
+let currentNoteSchedule = { date: '', items: [] };
+let noteAutoSaveTimer = null;
 
-const FALLBACK_COLORS = ['#e5c547', '#0a84ff', '#30d158', '#bf5af2', '#ff9f0a', '#64d2ff', '#ff375f', '#ffd60a'];
+/* ── COLORS ── */
+const MODEL_COLORS = { 'AirPods Pro 2':'#e5c547','AirPods Gen 2':'#0a84ff','AirPods Gen 3':'#30d158','AirPods Pro Max':'#bf5af2','AirPods Basic':'#ff9f0a' };
+const FALLBACK_COLORS = ['#e5c547','#0a84ff','#30d158','#bf5af2','#ff9f0a','#64d2ff','#ff375f','#ffd60a'];
 
-function escapeHTML(value) {
-  return String(value ?? '').replace(/[&<>'"]/g, ch => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
-  }[ch]));
-}
+function escapeHTML(v){ return String(v??'').replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch])); }
+function escapeAttr(v){ return escapeHTML(v).replace(/`/g,'&#96;'); }
+function jsString(v){ return String(v??'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,'\\n').replace(/\r/g,''); }
+function getModelColor(m){ if(MODEL_COLORS[m])return MODEL_COLORS[m];let h=0;for(const c of String(m||''))h=c.charCodeAt(0)+((h<<5)-h);return FALLBACK_COLORS[Math.abs(h)%FALLBACK_COLORS.length]; }
+function uniqueModels(){ const s=new Set();products.forEach(p=>{if(p.model)s.add(p.model)});sales.forEach(s2=>{if(s2.model)s.add(s2.model)});return Array.from(s).sort((a,b)=>a.localeCompare(b)); }
+function firebaseConfigReady(){ return Boolean(firebaseConfig.apiKey&&firebaseConfig.projectId&&!firebaseConfig.apiKey.includes('PASTE_')&&!firebaseConfig.projectId.includes('PASTE_')); }
+function saveLocal(){ localStorage.setItem('airpod_sales',JSON.stringify(sales)); }
+function saveProductsLocal(){ localStorage.setItem('airpod_models',JSON.stringify(products)); }
+function saveStockLocal(){ localStorage.setItem('airpod_stock',JSON.stringify(stockItems)); }
+function saveNotesLocal(){ localStorage.setItem('airpod_notes',JSON.stringify(notes)); }
+function loadLocalSales(){ try{return JSON.parse(localStorage.getItem('airpod_sales')||'[]');}catch{return[];} }
+function loadLocalProducts(){ try{return JSON.parse(localStorage.getItem('airpod_models')||'[]');}catch{return[];} }
+function loadLocalStock(){ try{return JSON.parse(localStorage.getItem('airpod_stock')||'[]');}catch{return[];} }
+function loadLocalNotes(){ try{return JSON.parse(localStorage.getItem('airpod_notes')||'[]');}catch{return[];} }
+const fmt = v=>'$'+Number(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 
-function escapeAttr(value) {
-  return escapeHTML(value).replace(/`/g, '&#96;');
-}
-
-function jsString(value) {
-  return String(value ?? '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n').replace(/\r/g, '');
-}
-
-function getModelColor(model) {
-  if (MODEL_COLORS[model]) return MODEL_COLORS[model];
-  let hash = 0;
-  for (const char of String(model || '')) hash = char.charCodeAt(0) + ((hash << 5) - hash);
-  return FALLBACK_COLORS[Math.abs(hash) % FALLBACK_COLORS.length];
-}
-
-function uniqueModels() {
-  const set = new Set();
-  products.forEach(p => { if (p.model) set.add(p.model); });
-  sales.forEach(s => { if (s.model) set.add(s.model); });
-  return Array.from(set).sort((a, b) => a.localeCompare(b));
-}
-
-
-function firebaseConfigReady() {
-  return Boolean(
-    firebaseConfig.apiKey &&
-    firebaseConfig.projectId &&
-    !firebaseConfig.apiKey.includes('PASTE_') &&
-    !firebaseConfig.projectId.includes('PASTE_')
-  );
-}
-
-/* ── SAVE ── */
-function saveLocal() { localStorage.setItem('airpod_sales', JSON.stringify(sales)); }
-function saveProductsLocal() { localStorage.setItem('airpod_models', JSON.stringify(products)); }
-function saveStockLocal() { localStorage.setItem('airpod_stock', JSON.stringify(stockItems)); }
-
-/* ── FIRESTORE INIT ── */
-function initFirestore() {
-  try {
+/* ── FIREBASE INIT ── */
+function initFirestore(){
+  try{
     const app = initializeApp(firebaseConfig);
     db = getFirestore(app);
     salesCollection = collection(db, FIRESTORE_COLLECTION);
     productsCollection = collection(db, PRODUCTS_COLLECTION);
     stockCollection = collection(db, STOCK_COLLECTION);
+    notesCollection = collection(db, NOTES_COLLECTION);
     useFirestore = true;
 
-    const q = query(salesCollection, orderBy('date', 'desc'));
-    onSnapshot(q, async (snapshot) => {
-      sales = snapshot.docs.map(documentSnapshot => ({
-        id: documentSnapshot.id,
-        ...documentSnapshot.data()
-      }));
+    onSnapshot(query(salesCollection,orderBy('date','desc')), async snap=>{
+      sales = snap.docs.map(d=>({id:d.id,...d.data()}));
+      renderAll(); renderAdminStats(); renderRecent(); renderStock();
+      if(firstFirestoreSnapshot){ firstFirestoreSnapshot=false; await offerLocalStorageMigration(snap.empty); showToast('✓ ភ្ជាប់ Firebase Firestore រួចរាល់'); }
+    }, err=>{ console.error(err); useFirestore=false; sales=loadLocalSales(); renderAll(); showToast('⚠️ Firestore error',true); });
 
-      renderAll();
-      renderAdminStats();
-      renderRecent();
-      renderStock();
+    onSnapshot(query(productsCollection,orderBy('model','asc')), snap=>{
+      products = snap.docs.map(d=>({id:d.id,...d.data()}));
+      renderProducts(); renderModelOptions(); renderFilters(); renderCharts();
+    }, err=>{ products=loadLocalProducts(); renderProducts(); renderModelOptions(); });
 
-      if (firstFirestoreSnapshot) {
-        firstFirestoreSnapshot = false;
-        await offerLocalStorageMigration(snapshot.empty);
-        showToast('✓ ភ្ជាប់ Firebase Firestore រួចរាល់');
-      }
-    }, (error) => {
-      console.error('Firestore listener error:', error);
-      useFirestore = false;
-      sales = loadLocalSales();
-      renderAll();
-      showToast('⚠️ Firestore error — កំពុងប្រើ localStorage ជាបណ្ដោះអាសន្ន', true);
-    });
+    onSnapshot(query(stockCollection,orderBy('date','desc')), snap=>{
+      stockItems = snap.docs.map(d=>({id:d.id,...d.data()}));
+      renderStock();
+    }, err=>{ stockItems=loadLocalStock(); renderStock(); });
 
-    const productsQuery = query(productsCollection, orderBy('model', 'asc'));
-    onSnapshot(productsQuery, (snapshot) => {
-      products = snapshot.docs.map(documentSnapshot => ({
-        id: documentSnapshot.id,
-        ...documentSnapshot.data()
-      }));
-      renderProducts();
-      renderModelOptions();
-      renderFilters();
-      renderCharts();
-      renderStock();
-    }, (error) => {
-      console.error('Firestore products listener error:', error);
-      products = loadLocalProducts();
-      renderProducts();
-      renderModelOptions();
-      showToast('⚠️ មិនអាចទាញ Model ពី Firebase បាន', true);
-    });
+    onSnapshot(query(notesCollection,orderBy('updatedAt','desc')), snap=>{
+      notes = snap.docs.map(d=>({id:d.id,...d.data()}));
+      noteRenderList();
+      if(activeNoteId){ const n=notes.find(x=>x.id===activeNoteId); if(n) noteUpdateSidebarItem(n); }
+    }, err=>{ notes=loadLocalNotes(); noteRenderList(); });
 
-    const stockQuery = query(stockCollection, orderBy('date', 'desc'));
-    onSnapshot(stockQuery, (snapshot) => {
-      stockItems = snapshot.docs.map(documentSnapshot => ({
-        id: documentSnapshot.id,
-        ...documentSnapshot.data()
-      }));
-      renderStock();
-    }, (error) => {
-      console.error('Firestore stock listener error:', error);
-      stockItems = loadLocalStock();
-      renderStock();
-      showToast('⚠️ មិនអាចទាញ Stock ពី Firebase បាន', true);
-    });
-  } catch (error) {
-    console.error('Firebase init error:', error);
-    useFirestore = false;
-    sales = loadLocalSales();
-    products = loadLocalProducts();
-    stockItems = loadLocalStock();
-    renderAll();
-    renderProducts();
-    renderModelOptions();
-    renderStock();
-    showToast('⚠️ Firebase config មិនត្រឹមត្រូវ — កំពុងប្រើ localStorage', true);
-  }
+  }catch(e){ console.error(e); useFirestore=false; sales=loadLocalSales(); products=loadLocalProducts(); stockItems=loadLocalStock(); notes=loadLocalNotes(); renderAll(); renderProducts(); renderModelOptions(); renderStock(); noteRenderList(); showToast('⚠️ Firebase config មិនត្រឹមត្រូវ',true); }
 }
 
-function loadLocalSales() {
-  try { return JSON.parse(localStorage.getItem('airpod_sales') || '[]'); }
-  catch { return []; }
-}
-
-function loadLocalProducts() {
-  try { return JSON.parse(localStorage.getItem('airpod_models') || '[]'); }
-  catch { return []; }
-}
-
-function loadLocalStock() {
-  try { return JSON.parse(localStorage.getItem('airpod_stock') || '[]'); }
-  catch { return []; }
-}
-
-async function offerLocalStorageMigration(firestoreIsEmpty) {
-  if (!useFirestore || !firestoreIsEmpty) return;
-
-  const localSales = loadLocalSales();
-  if (!localSales.length) return;
-
-  const ok = confirm('រកឃើញទិន្នន័យចាស់ក្នុង browser នេះ។ ចង់ផ្ទេរទៅ Firebase Firestore ឥឡូវនេះទេ?');
-  if (!ok) return;
-
-  try {
-    const batch = writeBatch(db);
-    localSales.forEach((sale) => {
-      const ref = doc(salesCollection);
-      batch.set(ref, {
-        date: sale.date,
-        model: sale.model,
-        qty: Number(sale.qty) || 0,
-        cost: Number(sale.cost) || 0,
-        sell: Number(sale.sell) || 0,
-        buyer: sale.buyer || '',
-        note: sale.note || '',
-        createdAt: serverTimestamp(),
-        migratedFromLocalStorage: true
-      });
-    });
-    await batch.commit();
-    localStorage.removeItem('airpod_sales');
-    showToast('✓ បានផ្ទេរទិន្នន័យចាស់ទៅ Firebase');
-  } catch (error) {
-    console.error('Migration error:', error);
-    showToast('⚠️ ផ្ទេរទិន្នន័យចាស់មិនបាន', true);
-  }
+async function offerLocalStorageMigration(empty){
+  if(!useFirestore||!empty)return;
+  const local=loadLocalSales(); if(!local.length)return;
+  const ok=confirm('រកឃើញទិន្នន័យចាស់ក្នុង browser នេះ។ ចង់ផ្ទេរទៅ Firebase?');
+  if(!ok)return;
+  try{
+    const batch=writeBatch(db);
+    local.forEach(s=>{ const ref=doc(salesCollection); batch.set(ref,{date:s.date,model:s.model,qty:Number(s.qty)||0,cost:Number(s.cost)||0,sell:Number(s.sell)||0,buyer:s.buyer||'',note:s.note||'',createdAt:serverTimestamp(),migratedFromLocalStorage:true}); });
+    await batch.commit(); localStorage.removeItem('airpod_sales'); showToast('✓ បានផ្ទេរទិន្នន័យចាស់ទៅ Firebase');
+  }catch(e){ showToast('⚠️ ផ្ទេរទិន្នន័យចាស់មិនបាន',true); }
 }
 
 /* ── CLOCK ── */
-function updateClock() {
-  const now = new Date();
-  document.getElementById('clock').textContent = now.toLocaleDateString('km-KH', { day:'2-digit', month:'short', year:'numeric' });
-}
-setInterval(updateClock, 1000); updateClock();
+function updateClock(){ document.getElementById('clock').textContent=new Date().toLocaleDateString('km-KH',{day:'2-digit',month:'short',year:'numeric'}); }
+setInterval(updateClock,1000); updateClock();
 
-/* ── SWITCH PAGE ── */
-function switchPage(name, tabEl) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('page-' + name).classList.add('active');
+/* ── PAGE SWITCH ── */
+function switchPage(name,tabEl){
+  // Handle note page separately (it uses flex layout)
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const notePage = document.getElementById('page-note');
+  notePage.classList.remove('active');
 
-  if (tabEl) {
-    tabEl.classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  if(tabEl){ tabEl.classList.add('active'); }
+  else{ const t=Array.from(document.querySelectorAll('.nav-tab')).find(t=>(t.getAttribute('onclick')||'').includes(`'${name}'`)); if(t)t.classList.add('active'); }
+
+  if(name==='note'){
+    notePage.classList.add('active');
   } else {
-    const tab = Array.from(document.querySelectorAll('.nav-tab')).find(t =>
-      (t.getAttribute('onclick') || '').includes(`'${name}'`)
-    );
-    if (tab) tab.classList.add('active');
+    document.getElementById('page-'+name).classList.add('active');
   }
 
-  if (name === 'dashboard') { renderAll(); }
-  if (name === 'admin') { renderAdminStats(); renderRecent(); renderModelOptions(); }
-  if (name === 'stock') { renderStock(); renderModelOptions(); }
-  if (name === 'products') { renderProducts(); }
+  if(name==='dashboard') renderAll();
+  if(name==='admin'){ renderAdminStats(); renderRecent(); renderModelOptions(); }
+  if(name==='stock'){ renderStock(); renderModelOptions(); }
+  if(name==='products') renderProducts();
+  if(name==='note') noteRenderList();
 }
 
 /* ── TOAST ── */
-function showToast(msg, err) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast show' + (err ? ' error' : '');
-  setTimeout(() => t.classList.remove('show'), 2500);
+function showToast(msg,err){ const t=document.getElementById('toast'); t.textContent=msg; t.className='toast show'+(err?' error':''); setTimeout(()=>t.classList.remove('show'),2500); }
+
+/* ═══════════════════════════════════════════════
+   NOTE FUNCTIONS
+═══════════════════════════════════════════════ */
+function noteGenerateId(){ return 'note_'+Date.now()+'_'+Math.random().toString(36).slice(2,7); }
+
+function noteGetDateStr(ts){
+  if(!ts)return '';
+  let d;
+  if(ts.toDate) d=ts.toDate();
+  else if(ts.seconds) d=new Date(ts.seconds*1000);
+  else d=new Date(ts);
+  return d.toLocaleDateString('km-KH',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
 }
 
-/* ── FORMAT ── */
-const fmt = v => '$' + Number(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-function saleSignature(sale) {
-  return [
-    String(sale.date || '').trim(),
-    String(sale.model || '').trim().toLowerCase(),
-    String(sale.category || '').trim().toLowerCase(),
-    Number(sale.qty || 0),
-    Number(sale.cost || 0).toFixed(2),
-    Number(sale.sell || 0).toFixed(2),
-    String(sale.buyer || '').trim().toLowerCase(),
-    String(sale.note || '').trim().toLowerCase()
-  ].join('|');
+function noteGetContentPreview(note){
+  if(note.type==='checklist'){
+    const items=note.checklistItems||[];
+    const done=items.filter(i=>i.checked).length;
+    return `✅ ${done}/${items.length} ត្រូវបានធ្វើ`;
+  }
+  if(note.type==='schedule'){
+    const items=note.scheduleItems||[];
+    const date=note.scheduleDate||'';
+    return `📅 ${date} · ${items.length} Events`;
+  }
+  return String(note.content||'').replace(/\n/g,' ').slice(0,60)||(note.title?'':'No content');
 }
 
-function hasDuplicateSale(sale, excludeId = null) {
-  const key = saleSignature(sale);
-  return sales.some(item => item.id !== excludeId && saleSignature(item) === key);
+function noteSetFilter(val,el){
+  noteFilter=val;
+  document.querySelectorAll('.note-type-filter-btn').forEach(b=>b.classList.remove('active'));
+  if(el)el.classList.add('active');
+  noteRenderList();
 }
 
-function saleCreatedMillis(sale) {
-  if (sale?.createdAt && typeof sale.createdAt.toMillis === 'function') return sale.createdAt.toMillis();
-  if (sale?.createdAt?.seconds) return sale.createdAt.seconds * 1000;
-  const idNumber = Number(sale?.id);
-  return Number.isFinite(idNumber) ? idNumber : 0;
-}
-
-/* ── FILTER ── */
-function setFilter(val, el) {
-  activeFilter = val;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  if (el) el.classList.add('active');
-  renderAll();
-}
-function filteredSales() {
-  const q = document.getElementById('searchInput')?.value.toLowerCase() || '';
-  return sales.filter(s => {
-    const modelOk = activeFilter === 'all' || s.model === activeFilter;
-    const searchOk = !q || String(s.model || '').toLowerCase().includes(q) || String(s.date || '').includes(q);
-    return modelOk && searchOk;
+function noteGetFiltered(){
+  const q=(document.getElementById('noteSearchInput')?.value||'').toLowerCase();
+  return notes.filter(n=>{
+    if(noteFilter!=='all'&&n.type!==noteFilter)return false;
+    if(q&&!String(n.title||'').toLowerCase().includes(q)&&!String(n.content||'').toLowerCase().includes(q))return false;
+    return true;
+  }).sort((a,b)=>{
+    if(a.pinned&&!b.pinned)return -1;
+    if(!a.pinned&&b.pinned)return 1;
+    const ta=a.updatedAt?.seconds||a.updatedAt||0;
+    const tb=b.updatedAt?.seconds||b.updatedAt||0;
+    return tb-ta;
   });
 }
 
-/* ── RENDER STATS ── */
-function renderStats() {
-  const data = filteredSales();
-  const totalQty = data.reduce((a, s) => a + (Number(s.qty) || 0), 0);
-  const totalCost = data.reduce((a, s) => a + (Number(s.cost) || 0) * (Number(s.qty) || 0), 0);
-  const totalRev = data.reduce((a, s) => a + (Number(s.sell) || 0) * (Number(s.qty) || 0), 0);
-  const totalProfit = totalRev - totalCost;
-  const margin = totalRev > 0 ? (totalProfit / totalRev * 100) : 0;
-
-  document.getElementById('s-total-qty').textContent = totalQty.toLocaleString('en-US');
-  document.getElementById('s-count').textContent = data.length + ' transactions';
-  document.getElementById('s-revenue').textContent = fmt(totalRev);
-  document.getElementById('s-revenue-qty').textContent = totalQty.toLocaleString('en-US') + ' ចំនួន';
-  document.getElementById('s-profit').textContent = fmt(totalProfit);
-  document.getElementById('s-margin').textContent = margin.toFixed(1) + '% margin';
-}
-
-/* ── RENDER TABLE ── */
-function renderTable() {
-  const data = filteredSales();
-  const body = document.getElementById('salesBody');
-  const foot = document.getElementById('salesFoot');
-
-  if (!data.length) {
-    body.innerHTML = '<tr class="empty-row"><td colspan="8">មិនទានមានទិន្នន័យ — សូមបញ្ចូលពី Admin</td></tr>';
-    foot.innerHTML = '';
+function noteRenderList(){
+  const list=document.getElementById('noteList');
+  const filtered=noteGetFiltered();
+  if(!filtered.length){
+    const q=(document.getElementById('noteSearchInput')?.value||'');
+    list.innerHTML=`<div class="note-empty-list"><div>${q?'🔍':'📝'}</div><div>${q?'រកមិនឃើញ Note':'មិនទាន់មាន Note'}</div></div>`;
     return;
   }
-
-  let html = '';
-  let totQty = 0, totCost = 0, totSell = 0;
-  data.forEach((s) => {
-    const qty = Number(s.qty) || 0;
-    const costEach = Number(s.cost) || 0;
-    const sellEach = Number(s.sell) || 0;
-    const cost = costEach * qty;
-    const sell = sellEach * qty;
-    const profit = sell - cost;
-    const margin = sell > 0 ? (profit / sell * 100) : 0;
-    totQty += qty; totCost += cost; totSell += sell;
-    html += `<tr>
-      <td><div class="td-product">
-        <div class="product-dot" style="background:${getModelColor(s.model)}"></div>
-        <span class="badge-model">${escapeHTML(s.model || '')}</span>
-        ${s.category ? `<span style="color:var(--text3);font-size:11px">${escapeHTML(s.category)}</span>` : ''}
-      </div></td>
-      <td style="text-align:center;font-weight:600">${qty}</td>
-      <td class="text-right">${fmt(sellEach)}</td>
-      <td class="text-right">${fmt(costEach)}</td>
-      <td class="text-right">
-        <span class="badge ${profit>=0?'badge-profit':'badge-loss'}">${profit>=0?'+':''}${fmt(profit)}</span>
-      </td>
-      <td>${escapeHTML(s.date || '')}</td>
-      <td class="text-right" style="color:${margin>=0?'var(--green)':'var(--red)'}">${margin.toFixed(1)}%</td>
-      <td class="text-right action-col">
-        <div class="action-cell">
-          <button class="btn-icon btn-edit" title="Edit" onclick="editSale('${escapeAttr(s.id)}')">✎</button>
-          <button class="btn-icon btn-delete" title="Delete" onclick="deleteSale('${escapeAttr(s.id)}')">🗑</button>
-        </div>
-      </td>
-    </tr>`;
-  });
-  body.innerHTML = html;
-
-  const totProfit = totSell - totCost;
-  const totalMargin = totSell > 0 ? (totProfit / totSell * 100) : 0;
-  foot.innerHTML = `<tr style="background:var(--card2);font-weight:700">
-    <td style="padding:12px 16px;color:var(--text3);font-size:12px">សរុប</td>
-    <td style="padding:12px 16px;text-align:center">${totQty}</td>
-    <td class="text-right" style="padding:12px 16px;color:var(--green)">${fmt(totSell)}</td>
-    <td class="text-right" style="padding:12px 16px;color:var(--blue2)">${fmt(totCost)}</td>
-    <td class="text-right" style="padding:12px 16px">
-      <span class="badge ${totProfit>=0?'badge-profit':'badge-loss'}">${totProfit>=0?'+':''}${fmt(totProfit)}</span>
-    </td>
-    <td style="padding:12px 16px;color:var(--text3)">—</td>
-    <td class="text-right" style="padding:12px 16px;color:${totProfit>=0?'var(--green)':'var(--red)'}">${totalMargin.toFixed(1)}%</td>
-    <td class="action-col"></td>
-  </tr>`;
-}
-
-/* ── RENDER CHARTS ── */
-function renderCharts() {
-  const data = [...sales].sort((a,b) => String(a.date || '').localeCompare(String(b.date || ''))).slice(-12);
-
-  const labels = data.map(s => String(s.date || '').substring(5));
-  const revenues = data.map(s => +((Number(s.sell) || 0) * (Number(s.qty) || 0)).toFixed(2));
-  const profits = data.map(s => +(((Number(s.sell) || 0) - (Number(s.cost) || 0)) * (Number(s.qty) || 0)).toFixed(2));
-
-  if (lineChart) lineChart.destroy();
-  lineChart = new Chart(document.getElementById('chartLine'), {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [
-        {
-          label: 'ប្រាក់លក់', data: revenues,
-          borderColor: '#0a84ff', backgroundColor: 'rgba(10,132,255,0.08)',
-          fill: true, tension: 0.4, pointRadius: 3, borderWidth: 2,
-          borderDash: [], pointBackgroundColor: '#0a84ff'
-        },
-        {
-          label: 'ចំណេញ', data: profits,
-          borderColor: '#30d158', backgroundColor: 'rgba(48,209,88,0.06)',
-          fill: true, tension: 0.4, pointRadius: 3, borderWidth: 2,
-          borderDash: [4, 3], pointBackgroundColor: '#30d158'
-        }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: true, position: 'top', labels: { color: '#aeaeb2', font: { size: 11 }, boxWidth: 14 } } },
-      scales: {
-        x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#636366', font: { size: 11 }, maxRotation: 45 } },
-        y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#636366', font: { size: 11 }, callback: v => '$' + v } }
-      }
-    }
-  });
-
-  const modelCount = {};
-  sales.forEach(s => { modelCount[s.model] = (modelCount[s.model] || 0) + (Number(s.qty) || 0); });
-  const modelLabels = Object.keys(modelCount).filter(Boolean);
-  const modelData = modelLabels.map(m => modelCount[m]);
-  const modelColors = modelLabels.map(m => getModelColor(m));
-
-  if (donutChart) donutChart.destroy();
-  donutChart = new Chart(document.getElementById('chartDoughnut'), {
-    type: 'doughnut',
-    data: {
-      labels: modelLabels,
-      datasets: [{ data: modelData, backgroundColor: modelColors, borderWidth: 0, hoverOffset: 4 }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'right', labels: { color: '#aeaeb2', font: { size: 11 }, boxWidth: 12, padding: 10 } } },
-      cutout: '65%'
-    }
-  });
-}
-
-/* ── RENDER ALL ── */
-function renderAll() {
-  renderFilters();
-  renderStats();
-  renderTable();
-  renderCharts();
-}
-
-/* ── MODEL / CATEGORY RENDERING ── */
-function renderFilters() {
-  const row = document.getElementById('filterRow');
-  if (!row) return;
-  const models = uniqueModels();
-  let html = `<button class="filter-btn ${activeFilter === 'all' ? 'active' : ''}" onclick="setFilter('all',this)">ទាំងអស់</button>`;
-  html += models.map(model => `
-    <button class="filter-btn ${activeFilter === model ? 'active' : ''}" onclick="setFilter('${jsString(model)}',this)">${escapeHTML(model)}</button>
-  `).join('');
-  row.innerHTML = html;
-}
-
-function renderModelOptions() {
-  const buildOptions = () => {
-    let html = '<option value="">-- ជ្រើសរើស Model --</option>';
-    html += products.map(item => {
-      const category = item.category ? `${item.category} · ` : '';
-      const label = `${category}${item.model} — ${fmt(Number(item.cost) || 0)}`;
-      return `<option value="${escapeAttr(item.id)}">${escapeHTML(label)}</option>`;
-    }).join('');
-    return html;
-  };
-
-  ['f-model', 'st-model'].forEach(selectId => {
-    const select = document.getElementById(selectId);
-    if (!select) return;
-    const previousValue = select.value;
-    select.innerHTML = buildOptions();
-    if (previousValue && products.some(item => item.id === previousValue)) select.value = previousValue;
-  });
-}
-
-function renderProducts() {
-  const body = document.getElementById('productBody');
-  if (!body) return;
-
-  if (!products.length) {
-    body.innerHTML = '<tr class="empty-row"><td colspan="5">មិនទាន់មាន Model — សូមបង្កើត Model ថ្មី</td></tr>';
-    renderModelOptions();
-    return;
-  }
-
-  body.innerHTML = products.map(item => `
-    <tr>
-      <td>${escapeHTML(item.category || 'AirPods')}</td>
-      <td>
-        <div class="td-product">
-          <div class="product-dot" style="background:${getModelColor(item.model)}"></div>
-          <span class="badge-model">${escapeHTML(item.model || '')}</span>
-        </div>
-      </td>
-      <td class="text-right text-blue">${fmt(Number(item.cost) || 0)}</td>
-      <td style="color:var(--text3)">${escapeHTML(item.createdDate || '')}</td>
-      <td class="text-right">
-        <div class="action-cell">
-          <button class="btn-icon btn-edit" title="Edit" onclick="editProduct('${escapeAttr(item.id)}')">✎</button>
-          <button class="btn-icon btn-delete" title="Delete" onclick="deleteProduct('${escapeAttr(item.id)}')">🗑</button>
-        </div>
-      </td>
-    </tr>
-  `).join('');
-  renderModelOptions();
-}
-
-function onSaleModelChange() {
-  const productId = document.getElementById('f-model').value;
-  const product = products.find(item => item.id === productId);
-  if (product) {
-    const costInput = document.getElementById('f-cost');
-    costInput.value = Number(product.cost || 0).toFixed(2);
-  }
-  calcPreview();
-}
-
-function resetProductForm() {
-  editingProductId = null;
-  document.getElementById('m-category').value = 'AirPods';
-  document.getElementById('m-model').value = '';
-  document.getElementById('m-cost').value = '';
-  const submit = document.getElementById('productSubmitBtn');
-  const cancel = document.getElementById('productCancelBtn');
-  if (submit) submit.textContent = '💾 រក្សាទុក Model';
-  if (cancel) cancel.style.display = 'none';
-}
-
-function cancelProductEdit() {
-  resetProductForm();
-  showToast('↩ បានបោះបង់ការកែប្រែ Model');
-}
-
-function editProduct(id) {
-  const product = products.find(item => item.id === id);
-  if (!product) return showToast('⚠️ រកមិនឃើញ Model នេះ', true);
-
-  editingProductId = id;
-  document.getElementById('m-category').value = product.category || 'AirPods';
-  document.getElementById('m-model').value = product.model || '';
-  document.getElementById('m-cost').value = Number(product.cost || 0).toFixed(2);
-
-  const submit = document.getElementById('productSubmitBtn');
-  const cancel = document.getElementById('productCancelBtn');
-  if (submit) submit.textContent = '💾 កែប្រែ Model';
-  if (cancel) cancel.style.display = 'block';
-
-  switchPage('products');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-async function addProduct() {
-  const category = document.getElementById('m-category').value.trim() || 'AirPods';
-  const model = document.getElementById('m-model').value.trim();
-  const cost = parseFloat(document.getElementById('m-cost').value);
-
-  if (!model) return showToast('⚠️ សូមបញ្ចូល Model AirPods', true);
-  if (isNaN(cost) || cost < 0) return showToast('⚠️ តម្លៃទិញចូលមិនត្រឹមត្រូវ', true);
-
-  const duplicate = products.some(item =>
-    item.id !== editingProductId &&
-    String(item.model || '').toLowerCase() === model.toLowerCase() &&
-    String(item.category || 'AirPods').toLowerCase() === category.toLowerCase()
-  );
-  if (duplicate) return showToast('⚠️ Model នេះមានរួចហើយ', true);
-
-  const product = {
-    category,
-    model,
-    cost,
-    createdDate: editingProductId
-      ? (products.find(item => item.id === editingProductId)?.createdDate || new Date().toISOString().slice(0, 10))
-      : new Date().toISOString().slice(0, 10)
-  };
-
-  try {
-    if (editingProductId) {
-      if (useFirestore && productsCollection) {
-        await updateDoc(doc(db, PRODUCTS_COLLECTION, editingProductId), { ...product, updatedAt: serverTimestamp() });
-      } else {
-        products = products.map(item => item.id === editingProductId ? { ...item, ...product } : item);
-        saveProductsLocal();
-        renderProducts();
-        renderFilters();
-        renderStock();
-      }
-      showToast('✓ បានកែប្រែ Model រួចរាល់');
-    } else {
-      if (useFirestore && productsCollection) {
-        await addDoc(productsCollection, { ...product, createdAt: serverTimestamp() });
-      } else {
-        products.push({ id: Date.now().toString(), ...product });
-        saveProductsLocal();
-        renderProducts();
-        renderFilters();
-        renderStock();
-      }
-      showToast('✓ បានបង្កើត Model រួចរាល់');
-    }
-    resetProductForm();
-  } catch (error) {
-    console.error('Save product error:', error);
-    showToast('⚠️ រក្សាទុក Model មិនបាន — សូមពិនិត្យ Firebase Rules', true);
-  }
-}
-
-async function deleteProduct(id) {
-  const product = products.find(item => item.id === id);
-  if (!product) return;
-  const usedCount = sales.filter(s => s.productId === id || s.model === product.model).length;
-  const message = usedCount > 0
-    ? `Model នេះមានប្រើក្នុងការលក់ ${usedCount} ដង។ លុបតែបញ្ជី Model ប៉ុណ្ណោះ មិនលុបប្រវត្តិលក់ទេ។ បន្តលុប?`
-    : 'លុប Model នេះ?';
-  if (!confirm(message)) return;
-
-  try {
-    if (useFirestore) {
-      await deleteDoc(doc(db, PRODUCTS_COLLECTION, id));
-    } else {
-      products = products.filter(item => item.id !== id);
-      saveProductsLocal();
-      renderProducts();
-      renderFilters();
-      renderStock();
-    }
-    if (editingProductId === id) resetProductForm();
-    showToast('✓ បានលុប Model រួចរាល់');
-  } catch (error) {
-    console.error('Delete product error:', error);
-    showToast('⚠️ លុប Model មិនបាន', true);
-  }
-}
-
-
-/* ── STOCK HELPERS ── */
-function productKey(productId, model, category) {
-  const pid = String(productId || '').trim();
-  if (pid) return `id:${pid}`;
-  return `model:${String(category || '').trim().toLowerCase()}|${String(model || '').trim().toLowerCase()}`;
-}
-
-function recordKey(record) {
-  return productKey(record?.productId, record?.model, record?.category);
-}
-
-function productMatches(record, productId, model, category) {
-  return recordKey(record) === productKey(productId, model, category);
-}
-
-function stockQtyForTarget(productId, model, category) {
-  return stockItems
-    .filter(item => productMatches(item, productId, model, category))
-    .reduce((sum, item) => sum + (Number(item.qty) || 0), 0);
-}
-
-function soldQtyForTarget(productId, model, category, excludeSaleId = null) {
-  return sales
-    .filter(item => item.id !== excludeSaleId && productMatches(item, productId, model, category))
-    .reduce((sum, item) => sum + (Number(item.qty) || 0), 0);
-}
-
-function stockAvailableForTarget(productId, model, category, excludeSaleId = null) {
-  return stockQtyForTarget(productId, model, category) - soldQtyForTarget(productId, model, category, excludeSaleId);
-}
-
-function aggregateStock() {
-  const map = new Map();
-  const ensure = (item) => {
-    const key = recordKey(item);
-    if (!map.has(key)) {
-      map.set(key, {
-        key,
-        productId: item.productId || '',
-        model: item.model || '',
-        category: item.category || '',
-        stockQty: 0,
-        stockValue: 0,
-        soldQty: 0
-      });
-    }
-    return map.get(key);
-  };
-
-  stockItems.forEach(item => {
-    const qty = Number(item.qty) || 0;
-    const cost = Number(item.cost) || 0;
-    const row = ensure(item);
-    row.stockQty += qty;
-    row.stockValue += qty * cost;
-  });
-
-  sales.forEach(item => {
-    const row = ensure(item);
-    row.soldQty += Number(item.qty) || 0;
-  });
-
-  return Array.from(map.values()).map(row => {
-    const avgCost = row.stockQty > 0 ? row.stockValue / row.stockQty : 0;
-    const remainQty = row.stockQty - row.soldQty;
-    return { ...row, avgCost, remainQty, remainValue: Math.max(remainQty, 0) * avgCost };
-  }).sort((a, b) => String(a.model).localeCompare(String(b.model)));
-}
-
-function renderStock() {
-  renderStockStats();
-  renderStockBalance();
-  renderStockHistory();
-}
-
-function renderStockStats() {
-  const el = document.getElementById('stockStats');
-  if (!el) return;
-  const rows = aggregateStock();
-  const totalIn = rows.reduce((a, r) => a + r.stockQty, 0);
-  const totalSold = rows.reduce((a, r) => a + r.soldQty, 0);
-  const totalRemain = rows.reduce((a, r) => a + r.remainQty, 0);
-  const totalValue = rows.reduce((a, r) => a + r.remainValue, 0);
-
-  if (!rows.length) {
-    el.innerHTML = '<div style="color:var(--text3);font-size:13px;text-align:center;padding:20px">មិនទាន់មាន Stock</div>';
-    return;
-  }
-
-  el.innerHTML = `
-    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid var(--border)">
-      <span style="color:var(--text3);font-size:13px">📥 Stock ចូលសរុប</span>
-      <span style="font-weight:600">${totalIn.toLocaleString('en-US')}</span>
-    </div>
-    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid var(--border)">
-      <span style="color:var(--text3);font-size:13px">🛒 បានលក់សរុប</span>
-      <span style="font-weight:600;color:var(--blue2)">${totalSold.toLocaleString('en-US')}</span>
-    </div>
-    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid var(--border)">
-      <span style="color:var(--text3);font-size:13px">📦 Stock នៅសល់</span>
-      <span style="font-weight:700;color:${totalRemain >= 0 ? 'var(--green)' : 'var(--red)'}">${totalRemain.toLocaleString('en-US')}</span>
-    </div>
-    <div style="display:flex;justify-content:space-between;padding:8px 0">
-      <span style="color:var(--text3);font-size:13px">💵 តម្លៃ Stock នៅសល់</span>
-      <span style="font-weight:700;color:var(--amber)">${fmt(totalValue)}</span>
-    </div>
-  `;
-}
-
-function renderStockBalance() {
-  const body = document.getElementById('stockBalanceBody');
-  if (!body) return;
-  const rows = aggregateStock();
-  if (!rows.length) {
-    body.innerHTML = '<tr class="empty-row"><td colspan="6">មិនទាន់មាន Stock — សូម Add Stock មុន</td></tr>';
-    return;
-  }
-
-  body.innerHTML = rows.map(row => `
-    <tr>
-      <td><div class="td-product">
-        <div class="product-dot" style="background:${getModelColor(row.model)}"></div>
-        <span class="badge-model">${escapeHTML(row.model || '')}</span>
-        ${row.category ? `<span style="color:var(--text3);font-size:11px">${escapeHTML(row.category)}</span>` : ''}
-      </div></td>
-      <td style="text-align:center;font-weight:600">${row.stockQty.toLocaleString('en-US')}</td>
-      <td style="text-align:center;color:var(--blue2);font-weight:600">${row.soldQty.toLocaleString('en-US')}</td>
-      <td style="text-align:center;font-weight:700;color:${row.remainQty > 0 ? 'var(--green)' : row.remainQty < 0 ? 'var(--red)' : 'var(--text3)'}">${row.remainQty.toLocaleString('en-US')}</td>
-      <td class="text-right">${fmt(row.avgCost)}</td>
-      <td class="text-right text-green">${fmt(row.remainValue)}</td>
-    </tr>
-  `).join('');
-}
-
-function renderStockHistory() {
-  const body = document.getElementById('stockBody');
-  if (!body) return;
-  if (!stockItems.length) {
-    body.innerHTML = '<tr class="empty-row"><td colspan="7">មិនទាន់មានប្រវត្តិ Add Stock</td></tr>';
-    return;
-  }
-
-  body.innerHTML = stockItems.map(item => {
-    const qty = Number(item.qty) || 0;
-    const cost = Number(item.cost) || 0;
-    return `
-      <tr>
-        <td>${escapeHTML(item.date || '')}</td>
-        <td><div class="td-product">
-          <div class="product-dot" style="background:${getModelColor(item.model)}"></div>
-          <span class="badge-model">${escapeHTML(item.model || '')}</span>
-          ${item.category ? `<span style="color:var(--text3);font-size:11px">${escapeHTML(item.category)}</span>` : ''}
-        </div></td>
-        <td style="text-align:center;font-weight:600">${qty}</td>
-        <td class="text-right text-blue">${fmt(cost)}</td>
-        <td class="text-right text-green">${fmt(qty * cost)}</td>
-        <td style="color:var(--text3)">${escapeHTML(item.note || '')}</td>
-        <td class="text-right">
-          <div class="action-cell">
-            <button class="btn-icon btn-edit" title="Edit" onclick="editStock('${escapeAttr(item.id)}')">✎</button>
-            <button class="btn-icon btn-delete" title="Delete" onclick="deleteStock('${escapeAttr(item.id)}')">🗑</button>
-          </div>
-        </td>
-      </tr>
-    `;
-  }).join('');
-}
-
-function onStockModelChange() {
-  const productId = document.getElementById('st-model').value;
-  const product = products.find(item => item.id === productId);
-  if (product) document.getElementById('st-cost').value = Number(product.cost || 0).toFixed(2);
-}
-
-function resetStockForm() {
-  editingStockId = null;
-  const dateInput = document.getElementById('st-date');
-  if (dateInput) dateInput.value = new Date().toISOString().slice(0,10);
-  ['st-model','st-qty','st-cost','st-note'].forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    if (el.tagName === 'SELECT') el.value = '';
-    else el.value = '';
-  });
-  const submit = document.getElementById('stockSubmitBtn');
-  const cancel = document.getElementById('stockCancelBtn');
-  if (submit) submit.textContent = '💾 រក្សាទុក Stock';
-  if (cancel) cancel.style.display = 'none';
-}
-
-function cancelStockEdit() {
-  resetStockForm();
-  showToast('↩ បានបោះបង់ការកែប្រែ Stock');
-}
-
-function editStock(id) {
-  const item = stockItems.find(row => row.id === id);
-  if (!item) return showToast('⚠️ រកមិនឃើញ Stock នេះ', true);
-  editingStockId = id;
-  switchPage('stock');
-  renderModelOptions();
-
-  const product = products.find(p => p.id === item.productId) ||
-    products.find(p => p.model === item.model && (!item.category || p.category === item.category));
-
-  document.getElementById('st-date').value = item.date || new Date().toISOString().slice(0,10);
-  document.getElementById('st-model').value = product ? product.id : '';
-  document.getElementById('st-qty').value = Number(item.qty) || '';
-  document.getElementById('st-cost').value = Number(item.cost || 0).toFixed(2);
-  document.getElementById('st-note').value = item.note || '';
-
-  const submit = document.getElementById('stockSubmitBtn');
-  const cancel = document.getElementById('stockCancelBtn');
-  if (submit) submit.textContent = '💾 កែប្រែ Stock';
-  if (cancel) cancel.style.display = 'block';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-async function addStock() {
-  const date = document.getElementById('st-date').value;
-  const productId = document.getElementById('st-model').value;
-  const product = products.find(item => item.id === productId);
-  const currentStock = editingStockId ? stockItems.find(item => item.id === editingStockId) : null;
-  const model = product ? product.model : (currentStock?.model || '');
-  const category = product ? (product.category || '') : (currentStock?.category || '');
-  const qty = parseInt(document.getElementById('st-qty').value, 10);
-  const cost = parseFloat(document.getElementById('st-cost').value);
-  const note = document.getElementById('st-note').value.trim();
-
-  if (!date) return showToast('⚠️ សូមជ្រើសថ្ងៃខែចូល Stock', true);
-  if (!productId && !currentStock) return showToast('⚠️ សូមជ្រើស Model', true);
-  if (!model) return showToast('⚠️ សូមជ្រើស Model', true);
-  if (!qty || qty < 1) return showToast('⚠️ ចំនួន Stock ត្រូវតែ > 0', true);
-  if (isNaN(cost) || cost < 0) return showToast('⚠️ តម្លៃទិញចូលមិនត្រឹមត្រូវ', true);
-
-  const stock = {
-    date,
-    productId: productId || currentStock?.productId || '',
-    model,
-    category,
-    qty,
-    cost,
-    note,
-    createdDate: editingStockId
-      ? (currentStock?.createdDate || new Date().toISOString().slice(0,10))
-      : new Date().toISOString().slice(0,10)
-  };
-
-  try {
-    if (editingStockId) {
-      if (useFirestore && stockCollection) {
-        await updateDoc(doc(db, STOCK_COLLECTION, editingStockId), { ...stock, updatedAt: serverTimestamp() });
-      } else {
-        stockItems = stockItems.map(item => item.id === editingStockId ? { ...item, ...stock } : item);
-        saveStockLocal();
-        renderStock();
-      }
-      showToast('✓ បានកែប្រែ Stock រួចរាល់');
-    } else {
-      if (useFirestore && stockCollection) {
-        await addDoc(stockCollection, { ...stock, createdAt: serverTimestamp() });
-      } else {
-        stockItems.unshift({ id: Date.now().toString(), ...stock });
-        saveStockLocal();
-        renderStock();
-      }
-      showToast('✓ បាន Add Stock រួចរាល់');
-    }
-    resetStockForm();
-  } catch (error) {
-    console.error('Save stock error:', error);
-    showToast('⚠️ រក្សាទុក Stock មិនបាន — សូមពិនិត្យ Firebase Rules', true);
-  }
-}
-
-async function deleteStock(id) {
-  const item = stockItems.find(row => row.id === id);
-  if (!item) return;
-  const soldQty = soldQtyForTarget(item.productId, item.model, item.category);
-  const stockQty = stockQtyForTarget(item.productId, item.model, item.category);
-  const remainingAfterDelete = stockQty - (Number(item.qty) || 0) - soldQty;
-  const warn = remainingAfterDelete < 0
-    ? `បើលុប Stock នេះ ចំនួននៅសល់នឹងអវិជ្ជមាន (${remainingAfterDelete}) ព្រោះមានការលក់រួចហើយ។ បន្តលុប?`
-    : 'លុប Stock នេះ?';
-  if (!confirm(warn)) return;
-
-  try {
-    if (useFirestore && stockCollection) {
-      await deleteDoc(doc(db, STOCK_COLLECTION, id));
-    } else {
-      stockItems = stockItems.filter(row => row.id !== id);
-      saveStockLocal();
-      renderStock();
-    }
-    if (editingStockId === id) resetStockForm();
-    showToast('✓ បានលុប Stock រួចរាល់');
-  } catch (error) {
-    console.error('Delete stock error:', error);
-    showToast('⚠️ លុប Stock មិនបាន', true);
-  }
-}
-
-
-/* ── ADD SALE ── */
-async function addSale() {
-  if (isSavingSale) return showToast('⏳ កំពុងរក្សាទុក សូមរង់ចាំ...', true);
-
-  const submitBtn = document.getElementById('saleSubmitBtn');
-  const originalSubmitText = submitBtn ? submitBtn.textContent : '';
-
-  const date = document.getElementById('f-date').value;
-  const productId = document.getElementById('f-model').value;
-  const product = products.find(item => item.id === productId);
-  const currentSale = editingSaleId ? sales.find(s => s.id === editingSaleId) : null;
-  const model = product ? product.model : (currentSale?.model || '');
-  const category = product ? (product.category || '') : (currentSale?.category || '');
-  const qty = parseInt(document.getElementById('f-qty').value, 10);
-  const cost = parseFloat(document.getElementById('f-cost').value);
-  const sell = parseFloat(document.getElementById('f-sell').value);
-  const buyer = document.getElementById('f-buyer').value.trim();
-  const note = document.getElementById('f-note').value.trim();
-
-  if (!date) return showToast('⚠️ សូមជ្រើសរើសថ្ងៃទី', true);
-  if (!productId && !currentSale) return showToast('⚠️ សូមជ្រើស Model', true);
-  if (!model) return showToast('⚠️ សូមជ្រើស Model', true);
-  if (!qty || qty < 1) return showToast('⚠️ ចំនួនត្រូវតែ > 0', true);
-  if (isNaN(cost) || cost < 0) return showToast('⚠️ តម្លៃនាំចូលមិនត្រឹមត្រូវ', true);
-  if (isNaN(sell) || sell < 0) return showToast('⚠️ តម្លៃលក់មិនត្រឹមត្រូវ', true);
-
-  const sale = { date, model, category, productId: productId || currentSale?.productId || '', qty, cost, sell, buyer, note };
-
-  if (hasDuplicateSale(sale, editingSaleId)) {
-    return showToast('⚠️ ការលក់នេះមានរួចហើយ — បើលក់ដូចគ្នា សូមបន្ថែមចំនួនក្នុង record ដដែល', true);
-  }
-
-  const totalStockForSale = stockQtyForTarget(sale.productId, sale.model, sale.category);
-  if (totalStockForSale > 0) {
-    const availableQty = stockAvailableForTarget(sale.productId, sale.model, sale.category, editingSaleId);
-    if (qty > availableQty) {
-      return showToast(`⚠️ Stock មិនគ្រប់ — នៅសល់តែ ${availableQty} ប៉ុណ្ណោះ`, true);
-    }
-  }
-
-  isSavingSale = true;
-  if (submitBtn) {
-    submitBtn.disabled = true;
-    submitBtn.textContent = '⏳ កំពុងរក្សាទុក...';
-  }
-
-  try {
-    if (editingSaleId) {
-      if (useFirestore && salesCollection) {
-        await updateDoc(doc(db, FIRESTORE_COLLECTION, editingSaleId), { ...sale, updatedAt: serverTimestamp() });
-      } else {
-        sales = sales.map(item => item.id === editingSaleId ? { ...item, ...sale } : item);
-        saveLocal();
-        renderAll();
-        renderAdminStats();
-        renderRecent();
-        renderStock();
-      }
-      showToast('✓ បានកែប្រែការលក់រួចរាល់');
-    } else {
-      if (useFirestore && salesCollection) {
-        await addDoc(salesCollection, { ...sale, createdAt: serverTimestamp() });
-      } else {
-        sales.push({ id: Date.now().toString(), ...sale });
-        saveLocal();
-        renderAll();
-        renderAdminStats();
-        renderRecent();
-        renderStock();
-      }
-      showToast('✓ បានរក្សាទុករួចរាល់');
-    }
-
-    resetSaleForm();
-  } catch (error) {
-    console.error('Save sale error:', error);
-    showToast('⚠️ រក្សាទុកមិនបាន — សូមពិនិត្យ Firebase Rules/Config', true);
-  } finally {
-    isSavingSale = false;
-    if (submitBtn) {
-      submitBtn.disabled = false;
-      submitBtn.textContent = editingSaleId ? '💾 កែប្រែការលក់' : (originalSubmitText || '💾 រក្សាទុក');
-    }
-  }
-}
-
-function editSale(id) {
-  const sale = sales.find(item => item.id === id);
-  if (!sale) return showToast('⚠️ រកមិនឃើញការលក់នេះ', true);
-
-  editingSaleId = id;
-  switchPage('admin');
-  renderModelOptions();
-
-  const product = products.find(item => item.id === sale.productId) ||
-    products.find(item => item.model === sale.model && (!sale.category || item.category === sale.category));
-
-  document.getElementById('f-date').value = sale.date || new Date().toISOString().slice(0, 10);
-  document.getElementById('f-model').value = product ? product.id : '';
-  document.getElementById('f-qty').value = Number(sale.qty) || '';
-  document.getElementById('f-cost').value = Number(sale.cost || 0).toFixed(2);
-  document.getElementById('f-sell').value = Number(sale.sell || 0).toFixed(2);
-  document.getElementById('f-buyer').value = sale.buyer || '';
-  document.getElementById('f-note').value = sale.note || '';
-
-  const submit = document.getElementById('saleSubmitBtn');
-  const cancel = document.getElementById('saleCancelBtn');
-  if (submit) submit.textContent = '💾 កែប្រែការលក់';
-  if (cancel) cancel.style.display = 'block';
-  calcPreview();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function resetSaleForm() {
-  editingSaleId = null;
-  document.getElementById('f-date').value = new Date().toISOString().slice(0, 10);
-  ['f-model','f-qty','f-cost','f-sell','f-buyer','f-note'].forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    if (el.tagName === 'SELECT') el.value = '';
-    else el.value = '';
-  });
-  document.getElementById('p-cost').textContent = '—';
-  document.getElementById('p-sell').textContent = '—';
-  document.getElementById('p-profit').textContent = '—';
-  document.getElementById('p-profit').className = 'cr-value text-green';
-  const submit = document.getElementById('saleSubmitBtn');
-  const cancel = document.getElementById('saleCancelBtn');
-  if (submit) submit.textContent = '💾 រក្សាទុក';
-  if (cancel) cancel.style.display = 'none';
-}
-
-function cancelSaleEdit() {
-  resetSaleForm();
-  showToast('↩ បានបោះបង់ការកែប្រែការលក់');
-}
-
-async function deleteSale(id) {
-  if (!confirm('លុបការលក់នេះ?')) return;
-  try {
-    if (useFirestore) {
-      await deleteDoc(doc(db, FIRESTORE_COLLECTION, id));
-    } else {
-      sales = sales.filter(s => s.id !== id);
-      saveLocal();
-      renderAll();
-      renderAdminStats();
-      renderRecent();
-      renderStock();
-    }
-    if (editingSaleId === id) resetSaleForm();
-    showToast('✓ បានលុបរួចរាល់');
-  } catch (error) {
-    console.error('Delete sale error:', error);
-    showToast('⚠️ លុបមិនបាន', true);
-  }
-}
-
-async function cleanDuplicateSales() {
-  const keep = new Set();
-  const duplicates = [];
-  const ordered = [...sales].sort((a, b) => saleCreatedMillis(a) - saleCreatedMillis(b));
-
-  ordered.forEach((sale) => {
-    const key = saleSignature(sale);
-    if (keep.has(key)) duplicates.push(sale);
-    else keep.add(key);
-  });
-
-  if (!duplicates.length) return showToast('✓ មិនមានទិន្នន័យស្ទួនទេ');
-
-  if (!confirm(`រកឃើញទិន្នន័យស្ទួន ${duplicates.length} record។ លុបទិន្នន័យស្ទួន និងទុកតែ record ដំបូងមួយ?`)) return;
-
-  try {
-    if (useFirestore && db) {
-      const batch = writeBatch(db);
-      duplicates.forEach((sale) => batch.delete(doc(db, FIRESTORE_COLLECTION, sale.id)));
-      await batch.commit();
-    } else {
-      const duplicateIds = new Set(duplicates.map(item => item.id));
-      sales = sales.filter(item => !duplicateIds.has(item.id));
-      saveLocal();
-      renderAll();
-      renderAdminStats();
-      renderRecent();
-    }
-    showToast(`✓ បានសម្អាតទិន្នន័យស្ទួន ${duplicates.length} record`);
-  } catch (error) {
-    console.error('Clean duplicate sales error:', error);
-    showToast('⚠️ សម្អាតទិន្នន័យស្ទួនមិនបាន', true);
-  }
-}
-
-/* ── CALC PREVIEW ── */
-function calcPreview() {
-  const qty = parseInt(document.getElementById('f-qty').value, 10) || 0;
-  const cost = parseFloat(document.getElementById('f-cost').value) || 0;
-  const sell = parseFloat(document.getElementById('f-sell').value) || 0;
-  const tc = cost * qty, ts = sell * qty, tp = ts - tc;
-  document.getElementById('p-cost').textContent = tc > 0 ? fmt(tc) : '—';
-  document.getElementById('p-sell').textContent = ts > 0 ? fmt(ts) : '—';
-  const pp = document.getElementById('p-profit');
-  pp.textContent = (tc > 0 || ts > 0) ? (tp >= 0 ? '+' : '') + fmt(tp) : '—';
-  pp.className = 'cr-value ' + (tp >= 0 ? 'text-green' : 'text-red');
-}
-
-/* ── ADMIN STATS ── */
-function renderAdminStats() {
-  const el = document.getElementById('adminStats');
-  if (!sales.length) {
-    el.innerHTML = '<div style="color:var(--text3);font-size:13px;text-align:center;padding:20px">មិនទានមានទិន្នន័យ</div>';
-    return;
-  }
-  const totalProfit = sales.reduce((a,s) => a + ((Number(s.sell) || 0) - (Number(s.cost) || 0)) * (Number(s.qty) || 0), 0);
-  const totalSell = sales.reduce((a,s) => a + (Number(s.sell) || 0) * (Number(s.qty) || 0), 0);
-  const totalQty = sales.reduce((a,s) => a + (Number(s.qty) || 0), 0);
-  el.innerHTML = `
-    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid var(--border)">
-      <span style="color:var(--text3);font-size:13px">🧮 ចំនួនសរុប</span>
-      <span style="font-weight:600">${totalQty}</span>
-    </div>
-    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid var(--border)">
-      <span style="color:var(--text3);font-size:13px">💰 ប្រាក់លក់</span>
-      <span style="font-weight:600;color:var(--blue2)">${fmt(totalSell)}</span>
-    </div>
-    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid var(--border)">
-      <span style="color:var(--text3);font-size:13px">📈 ចំណេញ</span>
-      <span style="font-weight:700;color:${totalProfit>=0?'var(--green)':'var(--red)'}">${fmt(totalProfit)}</span>
-    </div>
-    <div style="display:flex;justify-content:space-between;padding:8px 0">
-      <span style="color:var(--text3);font-size:13px">🗒 Transactions</span>
-      <span style="font-weight:600">${sales.length}</span>
-    </div>
-  `;
-}
-
-/* ── RECENT LIST ── */
-function renderRecent() {
-  const el = document.getElementById('recentList');
-  const last5 = [...sales].slice(0, 5);
-  if (!last5.length) { el.innerHTML = '<div style="color:var(--text3);font-size:13px;text-align:center;padding:16px">មិនទានមានទិន្នន័យ</div>'; return; }
-  el.innerHTML = last5.map(s => {
-    const profit = ((Number(s.sell) || 0) - (Number(s.cost) || 0)) * (Number(s.qty) || 0);
-    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--border)">
-      <div>
-        <div style="font-size:13px;font-weight:500">${escapeHTML(s.model || '')}</div>
-        <div style="font-size:11px;color:var(--text3)">${s.date || ''} · ${Number(s.qty) || 0} ចំនួន</div>
+  const typeLabel={plain:'📄',checklist:'✅',schedule:'📅'};
+  list.innerHTML=filtered.map(n=>`
+    <div class="note-item${activeNoteId===n.id?' active':''}" data-id="${escapeAttr(n.id)}" data-color="${escapeAttr(n.color||'yellow')}" onclick="noteOpenNote('${jsString(n.id)}')">
+      <div class="note-item-top">
+        <div class="note-item-title">${escapeHTML(n.title||'(គ្មានចំណងជើង)')}</div>
+        ${n.pinned?'<span class="note-pin-icon">📌</span>':''}
       </div>
-      <span class="badge ${profit>=0?'badge-profit':'badge-loss'}">${profit>=0?'+':''}${fmt(profit)}</span>
-    </div>`;
-  }).join('');
+      <div class="note-item-preview">${escapeHTML(noteGetContentPreview(n))}</div>
+      <div class="note-item-meta">
+        <span class="note-type-badge">${typeLabel[n.type]||'📄'} ${n.type||'plain'}</span>
+        <span>${noteGetDateStr(n.updatedAt)}</span>
+      </div>
+    </div>
+  `).join('');
 }
 
-function csvCell(value) {
-  const text = String(value ?? '');
-  return (text.includes('\"') || text.includes(',') || text.includes('\n')) ? '"' + text.replace(/"/g, '""') + '"' : text;
+function noteUpdateSidebarItem(n){
+  const el=document.querySelector(`.note-item[data-id="${CSS.escape(n.id)}"]`);
+  if(!el)return;
+  const typeLabel={plain:'📄',checklist:'✅',schedule:'📅'};
+  el.dataset.color=n.color||'yellow';
+  el.querySelector('.note-item-title').textContent=n.title||'(គ្មានចំណងជើង)';
+  el.querySelector('.note-item-preview').textContent=noteGetContentPreview(n);
+  el.querySelector('.note-type-badge').textContent=`${typeLabel[n.type]||'📄'} ${n.type||'plain'}`;
 }
 
-/* ── EXPORT CSV ── */
-function exportCSV() {
-  if (!sales.length) return showToast('⚠️ គ្មានទិន្នន័យ', true);
-  const headers = ['Model','ចំនួន','តម្លៃលក់','តម្លៃនាំចូល','ប្រាក់ចំណេញ','ថ្ងៃខែលក់','% Margin'];
-  const rows = sales.map(s => {
-    const qty = Number(s.qty) || 0;
-    const costEach = Number(s.cost) || 0;
-    const sellEach = Number(s.sell) || 0;
-    const cost = costEach * qty, sell = sellEach * qty, profit = sell - cost;
-    const margin = sell > 0 ? (profit/sell*100).toFixed(1) : 0;
-    return [s.model,qty,sellEach,costEach,profit.toFixed(2),s.date,margin].map(csvCell).join(',');
+function noteOpenNote(id){
+  const n=notes.find(x=>x.id===id);
+  if(!n)return;
+  activeNoteId=id;
+  currentNoteType=n.type||'plain';
+  currentNoteColor=n.color||'yellow';
+  currentNoteChecklist=JSON.parse(JSON.stringify(n.checklistItems||[]));
+  currentNoteSchedule={ date:n.scheduleDate||'', items:JSON.parse(JSON.stringify(n.scheduleItems||[])) };
+
+  // Update sidebar active
+  document.querySelectorAll('.note-item').forEach(el=>el.classList.remove('active'));
+  const el=document.querySelector(`.note-item[data-id="${CSS.escape(id)}"]`);
+  if(el)el.classList.add('active');
+
+  // Show editor
+  document.getElementById('noteEditorEmpty').style.display='none';
+  const content=document.getElementById('noteEditorContent');
+  content.style.display='flex';
+  content.style.flexDirection='column';
+  content.style.flex='1';
+  content.style.overflow='hidden';
+
+  // Fill editor
+  document.getElementById('noteTitle').value=n.title||'';
+  noteAutoResizeTitle(document.getElementById('noteTitle'));
+
+  const dateStr=noteGetDateStr(n.updatedAt||n.createdAt);
+  document.getElementById('noteDateText').textContent=dateStr;
+  document.getElementById('noteWordCount').textContent=noteCountWords(n.content||'')+' ពាក្យ';
+
+  // Type buttons
+  document.querySelectorAll('.note-type-btn').forEach(b=>{
+    b.classList.toggle('active',b.dataset.type===currentNoteType);
   });
-  const csv = '\uFEFF' + [headers.join(','), ...rows].join('\n');
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'AirPods_Sales_' + new Date().toISOString().slice(0,10) + '.csv';
-  a.click();
-  showToast('✓ Export CSV រួចរាល់');
+
+  // Color dots
+  document.querySelectorAll('.note-color-dot').forEach(d=>{
+    d.classList.toggle('selected',d.dataset.color===currentNoteColor);
+  });
+
+  // Pin button
+  noteUpdatePinBtn(n.pinned);
+
+  // Show/hide areas
+  noteShowTypeArea(currentNoteType);
+
+  if(currentNoteType==='plain'){
+    document.getElementById('notePlainContent').value=n.content||'';
+    noteUpdateWordCount();
+  }else if(currentNoteType==='checklist'){
+    noteRenderChecklist();
+  }else if(currentNoteType==='schedule'){
+    document.getElementById('scheduleDate').value=currentNoteSchedule.date||new Date().toISOString().slice(0,10);
+    noteRenderSchedule();
+  }
 }
 
+function noteShowTypeArea(type){
+  document.getElementById('notePlainArea').style.display=type==='plain'?'block':'none';
+  document.getElementById('noteChecklistArea').style.display=type==='checklist'?'block':'none';
+  document.getElementById('noteScheduleArea').style.display=type==='schedule'?'block':'none';
+}
 
-/* ── SAVE DASHBOARD AS PDF ── */
-async function savePDF() {
-  const report = document.getElementById('page-dashboard');
-  if (!report) return showToast('⚠️ រកមិនឃើញ Report', true);
-  if (!window.html2canvas || !window.jspdf?.jsPDF) {
-    return showToast('⚠️ PDF library មិនទាន់ load', true);
+function noteCreateNew(){
+  const newNote={
+    id: noteGenerateId(),
+    title:'',content:'',type:'plain',color:'yellow',
+    pinned:false,
+    checklistItems:[],
+    scheduleItems:[],scheduleDate:new Date().toISOString().slice(0,10),
+    updatedAt:Date.now(), createdAt:Date.now()
+  };
+  if(!useFirestore){ notes.unshift(newNote); saveNotesLocal(); noteRenderList(); }
+  activeNoteId=newNote.id;
+  currentNoteType='plain'; currentNoteColor='yellow';
+  currentNoteChecklist=[]; currentNoteSchedule={date:new Date().toISOString().slice(0,10),items:[]};
+
+  if(!useFirestore){
+    noteOpenNote(newNote.id);
+  } else {
+    // Save to Firestore first, then open
+    addDoc(notesCollection,{
+      title:'',content:'',type:'plain',color:'yellow',pinned:false,
+      checklistItems:[],scheduleItems:[],scheduleDate:new Date().toISOString().slice(0,10),
+      createdAt:serverTimestamp(), updatedAt:serverTimestamp()
+    }).then(ref=>{
+      activeNoteId=ref.id;
+      // Firestore snapshot will trigger noteRenderList; open when rendered
+      setTimeout(()=>noteOpenNote(ref.id),600);
+    }).catch(e=>{ showToast('⚠️ បង្កើត Note មិនបាន',true); });
+    // Show editor immediately with blank state
+    document.getElementById('noteEditorEmpty').style.display='none';
+    const content=document.getElementById('noteEditorContent');
+    content.style.display='flex'; content.style.flexDirection='column'; content.style.flex='1'; content.style.overflow='hidden';
+    document.getElementById('noteTitle').value='';
+    document.getElementById('noteDateText').textContent='ថ្មី';
+    document.getElementById('noteWordCount').textContent='0 ពាក្យ';
+    document.querySelectorAll('.note-type-btn').forEach(b=>b.classList.toggle('active',b.dataset.type==='plain'));
+    document.querySelectorAll('.note-color-dot').forEach(d=>d.classList.toggle('selected',d.dataset.color==='yellow'));
+    noteUpdatePinBtn(false);
+    noteShowTypeArea('plain');
+    document.getElementById('notePlainContent').value='';
+    document.getElementById('noteTitle').focus();
+    return;
+  }
+  document.getElementById('noteTitle').focus();
+  showToast('✓ Note ថ្មីត្រូវបានបង្កើត');
+}
+
+async function noteSave(){
+  if(!activeNoteId)return noteCreateNew();
+  const title=document.getElementById('noteTitle').value.trim();
+  let content='', checklistItems=[], scheduleItems=[], scheduleDate='';
+
+  if(currentNoteType==='plain'){
+    content=document.getElementById('notePlainContent').value;
+  }else if(currentNoteType==='checklist'){
+    noteReadChecklist();
+    checklistItems=JSON.parse(JSON.stringify(currentNoteChecklist));
+    content='';
+  }else if(currentNoteType==='schedule'){
+    noteReadSchedule();
+    scheduleDate=document.getElementById('scheduleDate').value||'';
+    scheduleItems=JSON.parse(JSON.stringify(currentNoteSchedule.items));
+    content='';
   }
 
-  try {
-    showToast('⏳ កំពុងបង្កើត PDF...');
-    document.body.classList.add('pdf-exporting');
-    await new Promise(resolve => setTimeout(resolve, 350));
+  const pinned=document.getElementById('notePinBtn').classList.contains('pin-active');
+  const update={title,content,type:currentNoteType,color:currentNoteColor,pinned,checklistItems,scheduleItems,scheduleDate,updatedAt:Date.now()};
 
-    const canvas = await html2canvas(report, {
-      backgroundColor: '#0a0a0f',
-      scale: Math.min(2, window.devicePixelRatio || 1.5),
-      useCORS: true,
-      allowTaint: true,
-      scrollX: 0,
-      scrollY: -window.scrollY,
-      windowWidth: Math.max(document.documentElement.scrollWidth, report.scrollWidth),
-      windowHeight: Math.max(document.documentElement.scrollHeight, report.scrollHeight)
-    });
-
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const margin = 8;
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    const imgWidth = pageWidth - (margin * 2);
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    const imgData = canvas.toDataURL('image/png', 1.0);
-
-    let heightLeft = imgHeight;
-    let position = margin;
-    const usablePageHeight = pageHeight - (margin * 2);
-
-    pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
-    heightLeft -= usablePageHeight;
-
-    while (heightLeft > 0) {
-      position = margin - (imgHeight - heightLeft);
-      pdf.addPage();
-      pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
-      heightLeft -= usablePageHeight;
+  try{
+    if(useFirestore&&notesCollection){
+      await updateDoc(doc(db,NOTES_COLLECTION,activeNoteId),{...update,updatedAt:serverTimestamp()});
+    }else{
+      notes=notes.map(n=>n.id===activeNoteId?{...n,...update}:n);
+      saveNotesLocal(); noteRenderList();
     }
+    document.getElementById('noteDateText').textContent=new Date().toLocaleDateString('km-KH',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    showToast('✓ Note ត្រូវបានរក្សាទុក');
+  }catch(e){ console.error(e); showToast('⚠️ រក្សាទុក Note មិនបាន',true); }
+}
 
-    pdf.save('AirPods_Report_' + new Date().toISOString().slice(0, 10) + '.pdf');
-    showToast('✓ Save PDF រួចរាល់');
-  } catch (error) {
-    console.error('Save PDF error:', error);
-    showToast('⚠️ Save PDF មិនបាន', true);
-  } finally {
-    document.body.classList.remove('pdf-exporting');
+async function noteDelete(){
+  if(!activeNoteId)return;
+  if(!confirm('លុប Note នេះ?'))return;
+  try{
+    if(useFirestore){ await deleteDoc(doc(db,NOTES_COLLECTION,activeNoteId)); }
+    else{ notes=notes.filter(n=>n.id!==activeNoteId); saveNotesLocal(); noteRenderList(); }
+    activeNoteId=null;
+    document.getElementById('noteEditorEmpty').style.display='flex';
+    document.getElementById('noteEditorContent').style.display='none';
+    showToast('✓ Note ត្រូវបានលុប');
+  }catch(e){ showToast('⚠️ លុប Note មិនបាន',true); }
+}
+
+function noteTogglePin(){
+  const btn=document.getElementById('notePinBtn');
+  const isPinned=btn.classList.toggle('pin-active');
+  btn.textContent=isPinned?'📌 Pinned':'📌 Pin';
+}
+function noteUpdatePinBtn(pinned){
+  const btn=document.getElementById('notePinBtn');
+  btn.classList.toggle('pin-active',!!pinned);
+  btn.textContent=pinned?'📌 Pinned':'📌 Pin';
+}
+
+function noteSetType(type,el){
+  currentNoteType=type;
+  document.querySelectorAll('.note-type-btn').forEach(b=>b.classList.toggle('active',b.dataset.type===type));
+  noteShowTypeArea(type);
+  if(type==='checklist'){ noteRenderChecklist(); }
+  if(type==='schedule'){ noteRenderSchedule(); }
+}
+
+function noteSetColor(color,el){
+  currentNoteColor=color;
+  document.querySelectorAll('.note-color-dot').forEach(d=>d.classList.toggle('selected',d.dataset.color===color));
+}
+
+function noteAutoResizeTitle(el){
+  el.style.height='auto';
+  el.style.height=el.scrollHeight+'px';
+}
+
+function noteCountWords(text){ if(!text)return 0; return text.trim().split(/\s+/).filter(Boolean).length; }
+function noteUpdateWordCount(){
+  const txt=document.getElementById('notePlainContent')?.value||'';
+  document.getElementById('noteWordCount').textContent=noteCountWords(txt)+' ពាក្យ';
+}
+
+/* ── CHECKLIST ── */
+function noteRenderChecklist(){
+  const container=document.getElementById('checklistItems');
+  if(!container)return;
+  container.innerHTML=currentNoteChecklist.map((item,i)=>`
+    <div class="checklist-item" data-idx="${i}">
+      <div class="checklist-check${item.checked?' checked':''}" onclick="noteToggleCheck(${i})"></div>
+      <textarea class="checklist-text${item.checked?' done':''}" rows="1"
+        oninput="noteChecklistTextInput(${i},this);noteAutoResizeTA(this)"
+        onkeydown="noteChecklistKeydown(event,${i})"
+      >${escapeHTML(item.text||'')}</textarea>
+      <button class="checklist-del" onclick="noteDeleteCheckItem(${i})" title="លុប">✕</button>
+    </div>
+  `).join('');
+  // Auto-resize textareas
+  container.querySelectorAll('.checklist-text').forEach(ta=>noteAutoResizeTA(ta));
+  noteUpdateChecklistProgress();
+}
+
+function noteUpdateChecklistProgress(){
+  const total=currentNoteChecklist.length;
+  const done=currentNoteChecklist.filter(i=>i.checked).length;
+  const pct=total>0?Math.round(done/total*100):0;
+  document.getElementById('checklistProgressLabel').textContent=`${done} / ${total} ត្រូវបានធ្វើ`;
+  document.getElementById('checklistProgressPct').textContent=pct+'%';
+  document.getElementById('checklistProgressFill').style.width=pct+'%';
+}
+
+function noteToggleCheck(idx){
+  if(!currentNoteChecklist[idx])return;
+  currentNoteChecklist[idx].checked=!currentNoteChecklist[idx].checked;
+  noteRenderChecklist();
+}
+
+function noteChecklistTextInput(idx,el){
+  if(currentNoteChecklist[idx])currentNoteChecklist[idx].text=el.value;
+}
+
+function noteChecklistKeydown(e,idx){
+  if(e.key==='Enter'){ e.preventDefault(); noteAddChecklistItem(idx+1); }
+  if(e.key==='Backspace'&&!currentNoteChecklist[idx]?.text){ e.preventDefault(); noteDeleteCheckItem(idx); }
+}
+
+function noteAddChecklistItem(atIdx=null){
+  const item={text:'',checked:false};
+  if(atIdx!==null&&atIdx<=currentNoteChecklist.length) currentNoteChecklist.splice(atIdx,0,item);
+  else currentNoteChecklist.push(item);
+  noteRenderChecklist();
+  // Focus new item
+  const idx=atIdx!==null?atIdx:currentNoteChecklist.length-1;
+  const tas=document.querySelectorAll('#checklistItems .checklist-text');
+  if(tas[idx])tas[idx].focus();
+}
+
+function noteDeleteCheckItem(idx){
+  currentNoteChecklist.splice(idx,1);
+  noteRenderChecklist();
+}
+
+function noteReadChecklist(){ /* data already in currentNoteChecklist via live updates */ }
+
+function noteAutoResizeTA(el){ el.style.height='auto'; el.style.height=el.scrollHeight+'px'; }
+
+/* ── SCHEDULE ── */
+function noteRenderSchedule(){
+  const container=document.getElementById('scheduleItems');
+  if(!container)return;
+  container.innerHTML=currentNoteSchedule.items.map((item,i)=>`
+    <div class="schedule-item" data-idx="${i}">
+      <div class="schedule-priority sp-${item.priority||'mid'}"></div>
+      <div class="schedule-time-col">
+        <input type="time" class="schedule-time" value="${escapeAttr(item.time||'09:00')}"
+          onchange="noteScheduleFieldChange(${i},'time',this.value)">
+      </div>
+      <div class="schedule-content-col">
+        <input type="text" class="schedule-label-input" value="${escapeAttr(item.label||'')}"
+          placeholder="ចំណងជើង Event/Task..."
+          oninput="noteScheduleFieldChange(${i},'label',this.value)">
+        <textarea class="schedule-desc-input" rows="1" placeholder="ពិពណ៌នា (ជម្រើស)..."
+          oninput="noteScheduleFieldChange(${i},'desc',this.value);noteAutoResizeTA(this)"
+        >${escapeHTML(item.desc||'')}</textarea>
+        <select class="schedule-tag-select" onchange="noteScheduleFieldChange(${i},'priority',this.value)">
+          <option value="high"${item.priority==='high'?' selected':''}>🔴 High</option>
+          <option value="mid"${(!item.priority||item.priority==='mid')?' selected':''}>🟡 Medium</option>
+          <option value="low"${item.priority==='low'?' selected':''}>🟢 Low</option>
+        </select>
+      </div>
+      <button class="schedule-del-btn" onclick="noteDeleteScheduleItem(${i})" title="លុប">✕</button>
+    </div>
+  `).join('');
+  container.querySelectorAll('.schedule-desc-input').forEach(ta=>noteAutoResizeTA(ta));
+}
+
+function noteScheduleFieldChange(idx,field,val){
+  if(!currentNoteSchedule.items[idx])return;
+  currentNoteSchedule.items[idx][field]=val;
+  if(field==='priority'){
+    const dots=document.querySelectorAll(`#scheduleItems .schedule-item[data-idx="${idx}"] .schedule-priority`);
+    dots.forEach(d=>{ d.className='schedule-priority sp-'+val; });
   }
 }
 
-async function clearAllFirestoreSales() {
-  if (!useFirestore || !salesCollection) return showToast('⚠️ Firebase មិនទាន់ភ្ជាប់', true);
-  if (!confirm('លុបទិន្នន័យលក់ទាំងអស់ពី Firebase?')) return;
-  try {
-    const snapshot = await getDocs(salesCollection);
-    const batch = writeBatch(db);
-    snapshot.forEach(documentSnapshot => batch.delete(documentSnapshot.ref));
-    await batch.commit();
-    showToast('✓ បានលុបទិន្នន័យទាំងអស់');
-  } catch (error) {
-    console.error('Clear sales error:', error);
-    showToast('⚠️ លុបទិន្នន័យទាំងអស់មិនបាន', true);
-  }
+function noteAddScheduleItem(){
+  currentNoteSchedule.items.push({time:'09:00',label:'',desc:'',priority:'mid'});
+  noteRenderSchedule();
+  // Focus last
+  const inputs=document.querySelectorAll('#scheduleItems .schedule-label-input');
+  if(inputs.length)inputs[inputs.length-1].focus();
 }
 
-/* ── SET DEFAULT DATE ── */
-document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
-if (document.getElementById('st-date')) document.getElementById('st-date').value = new Date().toISOString().slice(0,10);
+function noteDeleteScheduleItem(idx){
+  currentNoteSchedule.items.splice(idx,1);
+  noteRenderSchedule();
+}
 
-/* ── EXPOSE FUNCTIONS FOR INLINE HTML HANDLERS ── */
-Object.assign(window, {
-  switchPage,
-  setFilter,
-  renderTable,
-  addSale,
-  editSale,
-  deleteSale,
-  cancelSaleEdit,
-  calcPreview,
-  exportCSV,
-  savePDF,
-  clearAllFirestoreSales,
-  cleanDuplicateSales,
-  renderProducts,
-  addProduct,
-  editProduct,
-  deleteProduct,
-  cancelProductEdit,
-  onSaleModelChange,
-  renderStock,
-  addStock,
-  editStock,
-  deleteStock,
-  cancelStockEdit,
-  onStockModelChange
+function noteReadSchedule(){
+  currentNoteSchedule.date=document.getElementById('scheduleDate')?.value||'';
+}
+
+/* ── KEYBOARD SHORTCUTS ── */
+document.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key==='s'){
+    const notePage=document.getElementById('page-note');
+    if(notePage.classList.contains('active')){
+      e.preventDefault(); noteSave();
+    }
+  }
+  if((e.ctrlKey||e.metaKey)&&e.key==='n'){
+    const notePage=document.getElementById('page-note');
+    if(notePage.classList.contains('active')){ e.preventDefault(); noteCreateNew(); }
+  }
+});
+
+/* ═══════════════════════════════════════════════
+   SALES / STOCK / PRODUCTS (unchanged logic)
+═══════════════════════════════════════════════ */
+function saleSignature(s){ return [String(s.date||'').trim(),String(s.model||'').trim().toLowerCase(),String(s.category||'').trim().toLowerCase(),Number(s.qty||0),Number(s.cost||0).toFixed(2),Number(s.sell||0).toFixed(2),String(s.buyer||'').trim().toLowerCase(),String(s.note||'').trim().toLowerCase()].join('|'); }
+function hasDuplicateSale(s,excludeId=null){ const k=saleSignature(s); return sales.some(i=>i.id!==excludeId&&saleSignature(i)===k); }
+function saleCreatedMillis(s){ if(s?.createdAt?.toMillis)return s.createdAt.toMillis(); if(s?.createdAt?.seconds)return s.createdAt.seconds*1000; const n=Number(s?.id); return Number.isFinite(n)?n:0; }
+function setFilter(val,el){ activeFilter=val; document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active')); if(el)el.classList.add('active'); renderAll(); }
+function filteredSales(){ const q=document.getElementById('searchInput')?.value.toLowerCase()||''; return sales.filter(s=>{ const mOk=activeFilter==='all'||s.model===activeFilter; const sOk=!q||String(s.model||'').toLowerCase().includes(q)||String(s.date||'').includes(q); return mOk&&sOk; }); }
+
+function renderStats(){
+  const data=filteredSales();
+  const tQty=data.reduce((a,s)=>a+(Number(s.qty)||0),0);
+  const tCost=data.reduce((a,s)=>a+(Number(s.cost)||0)*(Number(s.qty)||0),0);
+  const tRev=data.reduce((a,s)=>a+(Number(s.sell)||0)*(Number(s.qty)||0),0);
+  const tProfit=tRev-tCost;
+  const margin=tRev>0?(tProfit/tRev*100):0;
+  document.getElementById('s-total-qty').textContent=tQty.toLocaleString('en-US');
+  document.getElementById('s-count').textContent=data.length+' transactions';
+  document.getElementById('s-revenue').textContent=fmt(tRev);
+  document.getElementById('s-revenue-qty').textContent=tQty.toLocaleString('en-US')+' ចំនួន';
+  document.getElementById('s-profit').textContent=fmt(tProfit);
+  document.getElementById('s-margin').textContent=margin.toFixed(1)+'% margin';
+}
+
+function renderTable(){
+  const data=filteredSales();
+  const body=document.getElementById('salesBody');
+  const foot=document.getElementById('salesFoot');
+  if(!data.length){ body.innerHTML='<tr class="empty-row"><td colspan="8">មិនទានមានទិន្នន័យ — សូមបញ្ចូលពី Admin</td></tr>'; foot.innerHTML=''; return; }
+  let html='',totQty=0,totCost=0,totSell=0;
+  data.forEach(s=>{
+    const qty=Number(s.qty)||0,cE=Number(s.cost)||0,sE=Number(s.sell)||0;
+    const cost=cE*qty,sell=sE*qty,profit=sell-cost,margin=sell>0?(profit/sell*100):0;
+    totQty+=qty; totCost+=cost; totSell+=sell;
+    html+=`<tr><td><div class="td-product"><div class="product-dot" style="background:${getModelColor(s.model)}"></div><span class="badge-model">${escapeHTML(s.model||'')}</span>${s.category?`<span style="color:var(--text3);font-size:11px">${escapeHTML(s.category)}</span>`:''}</div></td><td style="text-align:center;font-weight:600">${qty}</td><td class="text-right">${fmt(sE)}</td><td class="text-right">${fmt(cE)}</td><td class="text-right"><span class="badge ${profit>=0?'badge-profit':'badge-loss'}">${profit>=0?'+':''}${fmt(profit)}</span></td><td>${escapeHTML(s.date||'')}</td><td class="text-right" style="color:${margin>=0?'var(--green)':'var(--red)'}">${margin.toFixed(1)}%</td><td class="text-right action-col"><div class="action-cell"><button class="btn-icon btn-edit" onclick="editSale('${escapeAttr(s.id)}')">✎</button><button class="btn-icon btn-delete" onclick="deleteSale('${escapeAttr(s.id)}')">🗑</button></div></td></tr>`;
+  });
+  body.innerHTML=html;
+  const tP=totSell-totCost,tM=totSell>0?(tP/totSell*100):0;
+  foot.innerHTML=`<tr style="background:var(--card2);font-weight:700"><td style="padding:12px 16px;color:var(--text3);font-size:12px">សរុប</td><td style="padding:12px 16px;text-align:center">${totQty}</td><td class="text-right" style="padding:12px 16px;color:var(--green)">${fmt(totSell)}</td><td class="text-right" style="padding:12px 16px;color:var(--blue2)">${fmt(totCost)}</td><td class="text-right" style="padding:12px 16px"><span class="badge ${tP>=0?'badge-profit':'badge-loss'}">${tP>=0?'+':''}${fmt(tP)}</span></td><td style="padding:12px 16px;color:var(--text3)">—</td><td class="text-right" style="padding:12px 16px;color:${tP>=0?'var(--green)':'var(--red)'}">${tM.toFixed(1)}%</td><td class="action-col"></td></tr>`;
+}
+
+function renderCharts(){
+  const data=[...sales].sort((a,b)=>String(a.date||'').localeCompare(String(b.date||''))).slice(-12);
+  const labels=data.map(s=>String(s.date||'').substring(5));
+  const revenues=data.map(s=>+((Number(s.sell)||0)*(Number(s.qty)||0)).toFixed(2));
+  const profits=data.map(s=>+(((Number(s.sell)||0)-(Number(s.cost)||0))*(Number(s.qty)||0)).toFixed(2));
+  if(lineChart)lineChart.destroy();
+  lineChart=new Chart(document.getElementById('chartLine'),{type:'line',data:{labels,datasets:[{label:'ប្រាក់លក់',data:revenues,borderColor:'#0a84ff',backgroundColor:'rgba(10,132,255,0.08)',fill:true,tension:0.4,pointRadius:3,borderWidth:2,pointBackgroundColor:'#0a84ff'},{label:'ចំណេញ',data:profits,borderColor:'#30d158',backgroundColor:'rgba(48,209,88,0.06)',fill:true,tension:0.4,pointRadius:3,borderWidth:2,borderDash:[4,3],pointBackgroundColor:'#30d158'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'top',labels:{color:'#aeaeb2',font:{size:11},boxWidth:14}}},scales:{x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#636366',font:{size:11},maxRotation:45}},y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#636366',font:{size:11},callback:v=>'$'+v}}}}});
+  const mc={};sales.forEach(s=>{mc[s.model]=(mc[s.model]||0)+(Number(s.qty)||0);});
+  const mL=Object.keys(mc).filter(Boolean),mD=mL.map(m=>mc[m]),mC=mL.map(m=>getModelColor(m));
+  if(donutChart)donutChart.destroy();
+  donutChart=new Chart(document.getElementById('chartDoughnut'),{type:'doughnut',data:{labels:mL,datasets:[{data:mD,backgroundColor:mC,borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#aeaeb2',font:{size:11},boxWidth:12,padding:10}}},cutout:'65%'}});
+}
+
+function renderAll(){ renderFilters(); renderStats(); renderTable(); renderCharts(); }
+
+function renderFilters(){
+  const row=document.getElementById('filterRow'); if(!row)return;
+  const models=uniqueModels();
+  let html=`<button class="filter-btn ${activeFilter==='all'?'active':''}" onclick="setFilter('all',this)">ទាំងអស់</button>`;
+  html+=models.map(m=>`<button class="filter-btn ${activeFilter===m?'active':''}" onclick="setFilter('${jsString(m)}',this)">${escapeHTML(m)}</button>`).join('');
+  row.innerHTML=html;
+}
+
+function renderModelOptions(){
+  const buildOptions=()=>{ let h='<option value="">-- ជ្រើសរើស Model --</option>'; h+=products.map(i=>`<option value="${escapeAttr(i.id)}">${escapeHTML((i.category?i.category+' · ':'')+i.model+' — '+fmt(Number(i.cost)||0))}</option>`).join(''); return h; };
+  ['f-model','st-model'].forEach(sid=>{ const s=document.getElementById(sid); if(!s)return; const pv=s.value; s.innerHTML=buildOptions(); if(pv&&products.some(i=>i.id===pv))s.value=pv; });
+}
+
+function renderProducts(){
+  const body=document.getElementById('productBody'); if(!body)return;
+  if(!products.length){ body.innerHTML='<tr class="empty-row"><td colspan="5">មិនទាន់មាន Model — សូមបង្កើត Model ថ្មី</td></tr>'; renderModelOptions(); return; }
+  body.innerHTML=products.map(i=>`<tr><td>${escapeHTML(i.category||'AirPods')}</td><td><div class="td-product"><div class="product-dot" style="background:${getModelColor(i.model)}"></div><span class="badge-model">${escapeHTML(i.model||'')}</span></div></td><td class="text-right text-blue">${fmt(Number(i.cost)||0)}</td><td style="color:var(--text3)">${escapeHTML(i.createdDate||'')}</td><td class="text-right"><div class="action-cell"><button class="btn-icon btn-edit" onclick="editProduct('${escapeAttr(i.id)}')">✎</button><button class="btn-icon btn-delete" onclick="deleteProduct('${escapeAttr(i.id)}')">🗑</button></div></td></tr>`).join('');
+  renderModelOptions();
+}
+
+function onSaleModelChange(){ const pid=document.getElementById('f-model').value; const p=products.find(i=>i.id===pid); if(p)document.getElementById('f-cost').value=Number(p.cost||0).toFixed(2); calcPreview(); }
+function onStockModelChange(){ const pid=document.getElementById('st-model').value; const p=products.find(i=>i.id===pid); if(p)document.getElementById('st-cost').value=Number(p.cost||0).toFixed(2); }
+
+function resetProductForm(){ editingProductId=null; document.getElementById('m-category').value='AirPods'; document.getElementById('m-model').value=''; document.getElementById('m-cost').value=''; const s=document.getElementById('productSubmitBtn'),c=document.getElementById('productCancelBtn'); if(s)s.textContent='💾 រក្សាទុក Model'; if(c)c.style.display='none'; }
+function cancelProductEdit(){ resetProductForm(); showToast('↩ បានបោះបង់ការកែប្រែ Model'); }
+
+function editProduct(id){ const p=products.find(i=>i.id===id); if(!p)return showToast('⚠️ រកមិនឃើញ Model',true); editingProductId=id; document.getElementById('m-category').value=p.category||'AirPods'; document.getElementById('m-model').value=p.model||''; document.getElementById('m-cost').value=Number(p.cost||0).toFixed(2); const s=document.getElementById('productSubmitBtn'),c=document.getElementById('productCancelBtn'); if(s)s.textContent='💾 កែប្រែ Model'; if(c)c.style.display='block'; switchPage('products'); window.scrollTo({top:0,behavior:'smooth'}); }
+
+async function addProduct(){
+  const category=document.getElementById('m-category').value.trim()||'AirPods';
+  const model=document.getElementById('m-model').value.trim();
+  const cost=parseFloat(document.getElementById('m-cost').value);
+  if(!model)return showToast('⚠️ សូមបញ្ចូល Model AirPods',true);
+  if(isNaN(cost)||cost<0)return showToast('⚠️ តម្លៃទិញចូលមិនត្រឹមត្រូវ',true);
+  const dup=products.some(i=>i.id!==editingProductId&&String(i.model||'').toLowerCase()===model.toLowerCase()&&String(i.category||'AirPods').toLowerCase()===category.toLowerCase());
+  if(dup)return showToast('⚠️ Model នេះមានរួចហើយ',true);
+  const product={category,model,cost,createdDate:editingProductId?(products.find(i=>i.id===editingProductId)?.createdDate||new Date().toISOString().slice(0,10)):new Date().toISOString().slice(0,10)};
+  try{
+    if(editingProductId){ if(useFirestore&&productsCollection)await updateDoc(doc(db,PRODUCTS_COLLECTION,editingProductId),{...product,updatedAt:serverTimestamp()}); else{ products=products.map(i=>i.id===editingProductId?{...i,...product}:i); saveProductsLocal(); renderProducts(); renderFilters(); renderStock(); } showToast('✓ បានកែប្រែ Model'); }
+    else{ if(useFirestore&&productsCollection)await addDoc(productsCollection,{...product,createdAt:serverTimestamp()}); else{ products.push({id:Date.now().toString(),...product}); saveProductsLocal(); renderProducts(); renderFilters(); renderStock(); } showToast('✓ បានបង្កើត Model'); }
+    resetProductForm();
+  }catch(e){ console.error(e); showToast('⚠️ រក្សាទុក Model មិនបាន',true); }
+}
+
+async function deleteProduct(id){
+  const p=products.find(i=>i.id===id); if(!p)return;
+  const uc=sales.filter(s=>s.productId===id||s.model===p.model).length;
+  if(!confirm(uc>0?`Model នេះមានប្រើក្នុងការលក់ ${uc} ដង។ បន្តលុប?`:'លុប Model នេះ?'))return;
+  try{ if(useFirestore)await deleteDoc(doc(db,PRODUCTS_COLLECTION,id)); else{ products=products.filter(i=>i.id!==id); saveProductsLocal(); renderProducts(); renderFilters(); renderStock(); } if(editingProductId===id)resetProductForm(); showToast('✓ បានលុប Model'); }catch(e){ showToast('⚠️ លុប Model មិនបាន',true); }
+}
+
+/* STOCK */
+function productKey(pid,model,cat){ const p=String(pid||'').trim(); if(p)return`id:${p}`; return`model:${String(cat||'').trim().toLowerCase()}|${String(model||'').trim().toLowerCase()}`; }
+function recordKey(r){ return productKey(r?.productId,r?.model,r?.category); }
+function productMatches(r,pid,model,cat){ return recordKey(r)===productKey(pid,model,cat); }
+function stockQtyForTarget(pid,m,c){ return stockItems.filter(i=>productMatches(i,pid,m,c)).reduce((s,i)=>s+(Number(i.qty)||0),0); }
+function soldQtyForTarget(pid,m,c,exId=null){ return sales.filter(i=>i.id!==exId&&productMatches(i,pid,m,c)).reduce((s,i)=>s+(Number(i.qty)||0),0); }
+function stockAvailableForTarget(pid,m,c,exId=null){ return stockQtyForTarget(pid,m,c)-soldQtyForTarget(pid,m,c,exId); }
+
+function aggregateStock(){
+  const map=new Map();
+  const ensure=item=>{ const key=recordKey(item); if(!map.has(key))map.set(key,{key,productId:item.productId||'',model:item.model||'',category:item.category||'',stockQty:0,stockValue:0,soldQty:0}); return map.get(key); };
+  stockItems.forEach(i=>{ const r=ensure(i); r.stockQty+=(Number(i.qty)||0); r.stockValue+=(Number(i.qty)||0)*(Number(i.cost)||0); });
+  sales.forEach(i=>{ ensure(i).soldQty+=(Number(i.qty)||0); });
+  return Array.from(map.values()).map(r=>{ const avg=r.stockQty>0?r.stockValue/r.stockQty:0; const rem=r.stockQty-r.soldQty; return{...r,avgCost:avg,remainQty:rem,remainValue:Math.max(rem,0)*avg}; }).sort((a,b)=>String(a.model).localeCompare(String(b.model)));
+}
+
+function renderStock(){ renderStockStats(); renderStockBalance(); renderStockHistory(); }
+
+function renderStockStats(){
+  const el=document.getElementById('stockStats'); if(!el)return;
+  const rows=aggregateStock();
+  if(!rows.length){ el.innerHTML='<div style="color:var(--text3);font-size:13px;text-align:center;padding:20px">មិនទាន់មាន Stock</div>'; return; }
+  const tIn=rows.reduce((a,r)=>a+r.stockQty,0),tSold=rows.reduce((a,r)=>a+r.soldQty,0),tRem=rows.reduce((a,r)=>a+r.remainQty,0),tVal=rows.reduce((a,r)=>a+r.remainValue,0);
+  el.innerHTML=`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid var(--border)"><span style="color:var(--text3);font-size:13px">📥 Stock ចូលសរុប</span><span style="font-weight:600">${tIn.toLocaleString('en-US')}</span></div><div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid var(--border)"><span style="color:var(--text3);font-size:13px">🛒 បានលក់សរុប</span><span style="font-weight:600;color:var(--blue2)">${tSold.toLocaleString('en-US')}</span></div><div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid var(--border)"><span style="color:var(--text3);font-size:13px">📦 Stock នៅសល់</span><span style="font-weight:700;color:${tRem>=0?'var(--green)':'var(--red)'}">${tRem.toLocaleString('en-US')}</span></div><div style="display:flex;justify-content:space-between;padding:8px 0"><span style="color:var(--text3);font-size:13px">💵 តម្លៃ Stock នៅសល់</span><span style="font-weight:700;color:var(--amber)">${fmt(tVal)}</span></div>`;
+}
+
+function renderStockBalance(){
+  const body=document.getElementById('stockBalanceBody'); if(!body)return;
+  const rows=aggregateStock();
+  if(!rows.length){ body.innerHTML='<tr class="empty-row"><td colspan="6">មិនទាន់មាន Stock — សូម Add Stock មុន</td></tr>'; return; }
+  body.innerHTML=rows.map(r=>`<tr><td><div class="td-product"><div class="product-dot" style="background:${getModelColor(r.model)}"></div><span class="badge-model">${escapeHTML(r.model||'')}</span>${r.category?`<span style="color:var(--text3);font-size:11px">${escapeHTML(r.category)}</span>`:''}</div></td><td style="text-align:center;font-weight:600">${r.stockQty.toLocaleString('en-US')}</td><td style="text-align:center;color:var(--blue2);font-weight:600">${r.soldQty.toLocaleString('en-US')}</td><td style="text-align:center;font-weight:700;color:${r.remainQty>0?'var(--green)':r.remainQty<0?'var(--red)':'var(--text3)'}">${r.remainQty.toLocaleString('en-US')}</td><td class="text-right">${fmt(r.avgCost)}</td><td class="text-right text-green">${fmt(r.remainValue)}</td></tr>`).join('');
+}
+
+function renderStockHistory(){
+  const body=document.getElementById('stockBody'); if(!body)return;
+  if(!stockItems.length){ body.innerHTML='<tr class="empty-row"><td colspan="7">មិនទាន់មានប្រវត្តិ Add Stock</td></tr>'; return; }
+  body.innerHTML=stockItems.map(i=>{ const qty=Number(i.qty)||0,cost=Number(i.cost)||0; return`<tr><td>${escapeHTML(i.date||'')}</td><td><div class="td-product"><div class="product-dot" style="background:${getModelColor(i.model)}"></div><span class="badge-model">${escapeHTML(i.model||'')}</span>${i.category?`<span style="color:var(--text3);font-size:11px">${escapeHTML(i.category)}</span>`:''}</div></td><td style="text-align:center;font-weight:600">${qty}</td><td class="text-right text-blue">${fmt(cost)}</td><td class="text-right text-green">${fmt(qty*cost)}</td><td style="color:var(--text3)">${escapeHTML(i.note||'')}</td><td class="text-right"><div class="action-cell"><button class="btn-icon btn-edit" onclick="editStock('${escapeAttr(i.id)}')">✎</button><button class="btn-icon btn-delete" onclick="deleteStock('${escapeAttr(i.id)}')">🗑</button></div></td></tr>`; }).join('');
+}
+
+function resetStockForm(){ editingStockId=null; const d=document.getElementById('st-date'); if(d)d.value=new Date().toISOString().slice(0,10); ['st-model','st-qty','st-cost','st-note'].forEach(id=>{ const el=document.getElementById(id); if(!el)return; if(el.tagName==='SELECT')el.value=''; else el.value=''; }); const s=document.getElementById('stockSubmitBtn'),c=document.getElementById('stockCancelBtn'); if(s)s.textContent='💾 រក្សាទុក Stock'; if(c)c.style.display='none'; }
+function cancelStockEdit(){ resetStockForm(); showToast('↩ បានបោះបង់ការកែប្រែ Stock'); }
+
+function editStock(id){ const item=stockItems.find(r=>r.id===id); if(!item)return showToast('⚠️ រកមិនឃើញ Stock',true); editingStockId=id; switchPage('stock'); renderModelOptions(); const p=products.find(x=>x.id===item.productId)||products.find(x=>x.model===item.model&&(!item.category||x.category===item.category)); document.getElementById('st-date').value=item.date||new Date().toISOString().slice(0,10); document.getElementById('st-model').value=p?p.id:''; document.getElementById('st-qty').value=Number(item.qty)||''; document.getElementById('st-cost').value=Number(item.cost||0).toFixed(2); document.getElementById('st-note').value=item.note||''; const s=document.getElementById('stockSubmitBtn'),c=document.getElementById('stockCancelBtn'); if(s)s.textContent='💾 កែប្រែ Stock'; if(c)c.style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); }
+
+async function addStock(){
+  const date=document.getElementById('st-date').value;
+  const pid=document.getElementById('st-model').value;
+  const p=products.find(i=>i.id===pid);
+  const cur=editingStockId?stockItems.find(i=>i.id===editingStockId):null;
+  const model=p?p.model:(cur?.model||'');
+  const category=p?(p.category||''):(cur?.category||'');
+  const qty=parseInt(document.getElementById('st-qty').value,10);
+  const cost=parseFloat(document.getElementById('st-cost').value);
+  const note=document.getElementById('st-note').value.trim();
+  if(!date)return showToast('⚠️ សូមជ្រើសថ្ងៃខែ',true);
+  if(!pid&&!cur)return showToast('⚠️ សូមជ្រើស Model',true);
+  if(!model)return showToast('⚠️ សូមជ្រើស Model',true);
+  if(!qty||qty<1)return showToast('⚠️ ចំនួន > 0',true);
+  if(isNaN(cost)||cost<0)return showToast('⚠️ តម្លៃមិនត្រឹមត្រូវ',true);
+  const stock={date,productId:pid||cur?.productId||'',model,category,qty,cost,note,createdDate:editingStockId?(cur?.createdDate||new Date().toISOString().slice(0,10)):new Date().toISOString().slice(0,10)};
+  try{
+    if(editingStockId){ if(useFirestore&&stockCollection)await updateDoc(doc(db,STOCK_COLLECTION,editingStockId),{...stock,updatedAt:serverTimestamp()}); else{ stockItems=stockItems.map(i=>i.id===editingStockId?{...i,...stock}:i); saveStockLocal(); renderStock(); } showToast('✓ បានកែប្រែ Stock'); }
+    else{ if(useFirestore&&stockCollection)await addDoc(stockCollection,{...stock,createdAt:serverTimestamp()}); else{ stockItems.unshift({id:Date.now().toString(),...stock}); saveStockLocal(); renderStock(); } showToast('✓ បាន Add Stock'); }
+    resetStockForm();
+  }catch(e){ console.error(e); showToast('⚠️ រក្សាទុក Stock មិនបាន',true); }
+}
+
+async function deleteStock(id){ const item=stockItems.find(r=>r.id===id); if(!item)return; const sold=soldQtyForTarget(item.productId,item.model,item.category),stk=stockQtyForTarget(item.productId,item.model,item.category),rem=stk-(Number(item.qty)||0)-sold; const warn=rem<0?`បើលុប ចំនួននៅសល់នឹងអវិជ្ជមាន (${rem})។ បន្តលុប?`:'លុប Stock នេះ?'; if(!confirm(warn))return; try{ if(useFirestore&&stockCollection)await deleteDoc(doc(db,STOCK_COLLECTION,id)); else{ stockItems=stockItems.filter(r=>r.id!==id); saveStockLocal(); renderStock(); } if(editingStockId===id)resetStockForm(); showToast('✓ បានលុប Stock'); }catch(e){ showToast('⚠️ លុប Stock មិនបាន',true); } }
+
+/* SALES */
+async function addSale(){
+  if(isSavingSale)return showToast('⏳ កំពុងរក្សាទុក...',true);
+  const submitBtn=document.getElementById('saleSubmitBtn');
+  const origTxt=submitBtn?.textContent||'';
+  const date=document.getElementById('f-date').value;
+  const pid=document.getElementById('f-model').value;
+  const p=products.find(i=>i.id===pid);
+  const cur=editingSaleId?sales.find(s=>s.id===editingSaleId):null;
+  const model=p?p.model:(cur?.model||'');
+  const category=p?(p.category||''):(cur?.category||'');
+  const qty=parseInt(document.getElementById('f-qty').value,10);
+  const cost=parseFloat(document.getElementById('f-cost').value);
+  const sell=parseFloat(document.getElementById('f-sell').value);
+  const buyer=document.getElementById('f-buyer').value.trim();
+  const note=document.getElementById('f-note').value.trim();
+  if(!date)return showToast('⚠️ សូមជ្រើសថ្ងៃទី',true);
+  if(!pid&&!cur)return showToast('⚠️ សូមជ្រើស Model',true);
+  if(!model)return showToast('⚠️ សូមជ្រើស Model',true);
+  if(!qty||qty<1)return showToast('⚠️ ចំនួន > 0',true);
+  if(isNaN(cost)||cost<0)return showToast('⚠️ តម្លៃនាំចូលមិនត្រឹមត្រូវ',true);
+  if(isNaN(sell)||sell<0)return showToast('⚠️ តម្លៃលក់មិនត្រឹមត្រូវ',true);
+  const sale={date,model,category,productId:pid||cur?.productId||'',qty,cost,sell,buyer,note};
+  if(hasDuplicateSale(sale,editingSaleId))return showToast('⚠️ ការលក់នេះមានរួចហើយ',true);
+  const totalStock=stockQtyForTarget(sale.productId,sale.model,sale.category);
+  if(totalStock>0){ const avail=stockAvailableForTarget(sale.productId,sale.model,sale.category,editingSaleId); if(qty>avail)return showToast(`⚠️ Stock មិនគ្រប់ — នៅសល់ ${avail}`,true); }
+  isSavingSale=true; if(submitBtn){submitBtn.disabled=true;submitBtn.textContent='⏳ កំពុងរក្សាទុក...';}
+  try{
+    if(editingSaleId){ if(useFirestore&&salesCollection)await updateDoc(doc(db,FIRESTORE_COLLECTION,editingSaleId),{...sale,updatedAt:serverTimestamp()}); else{ sales=sales.map(i=>i.id===editingSaleId?{...i,...sale}:i); saveLocal(); renderAll(); renderAdminStats(); renderRecent(); renderStock(); } showToast('✓ បានកែប្រែការលក់'); }
+    else{ if(useFirestore&&salesCollection)await addDoc(salesCollection,{...sale,createdAt:serverTimestamp()}); else{ sales.push({id:Date.now().toString(),...sale}); saveLocal(); renderAll(); renderAdminStats(); renderRecent(); renderStock(); } showToast('✓ បានរក្សាទុក'); }
+    resetSaleForm();
+  }catch(e){ console.error(e); showToast('⚠️ រក្សាទុកមិនបាន',true); }
+  finally{ isSavingSale=false; if(submitBtn){submitBtn.disabled=false;submitBtn.textContent=editingSaleId?'💾 កែប្រែការលក់':(origTxt||'💾 រក្សាទុក');} }
+}
+
+function editSale(id){ const s=sales.find(i=>i.id===id); if(!s)return showToast('⚠️ រកមិនឃើញ',true); editingSaleId=id; switchPage('admin'); renderModelOptions(); const p=products.find(i=>i.id===s.productId)||products.find(i=>i.model===s.model&&(!s.category||i.category===s.category)); document.getElementById('f-date').value=s.date||new Date().toISOString().slice(0,10); document.getElementById('f-model').value=p?p.id:''; document.getElementById('f-qty').value=Number(s.qty)||''; document.getElementById('f-cost').value=Number(s.cost||0).toFixed(2); document.getElementById('f-sell').value=Number(s.sell||0).toFixed(2); document.getElementById('f-buyer').value=s.buyer||''; document.getElementById('f-note').value=s.note||''; const sb=document.getElementById('saleSubmitBtn'),cb=document.getElementById('saleCancelBtn'); if(sb)sb.textContent='💾 កែប្រែការលក់'; if(cb)cb.style.display='block'; calcPreview(); window.scrollTo({top:0,behavior:'smooth'}); }
+
+function resetSaleForm(){ editingSaleId=null; document.getElementById('f-date').value=new Date().toISOString().slice(0,10); ['f-model','f-qty','f-cost','f-sell','f-buyer','f-note'].forEach(id=>{ const el=document.getElementById(id); if(!el)return; if(el.tagName==='SELECT')el.value=''; else el.value=''; }); ['p-cost','p-sell','p-profit'].forEach(id=>{ const el=document.getElementById(id); if(el)el.textContent='—'; }); document.getElementById('p-profit').className='cr-value text-green'; const s=document.getElementById('saleSubmitBtn'),c=document.getElementById('saleCancelBtn'); if(s)s.textContent='💾 រក្សាទុក'; if(c)c.style.display='none'; }
+function cancelSaleEdit(){ resetSaleForm(); showToast('↩ បានបោះបង់ការកែប្រែ'); }
+
+async function deleteSale(id){ if(!confirm('លុបការលក់នេះ?'))return; try{ if(useFirestore)await deleteDoc(doc(db,FIRESTORE_COLLECTION,id)); else{ sales=sales.filter(s=>s.id!==id); saveLocal(); renderAll(); renderAdminStats(); renderRecent(); renderStock(); } if(editingSaleId===id)resetSaleForm(); showToast('✓ បានលុប'); }catch(e){ showToast('⚠️ លុបមិនបាន',true); } }
+
+async function cleanDuplicateSales(){
+  const keep=new Set(),dups=[];
+  [...sales].sort((a,b)=>saleCreatedMillis(a)-saleCreatedMillis(b)).forEach(s=>{ const k=saleSignature(s); if(keep.has(k))dups.push(s); else keep.add(k); });
+  if(!dups.length)return showToast('✓ មិនមានទិន្នន័យស្ទួន');
+  if(!confirm(`រកឃើញស្ទួន ${dups.length} record។ លុប?`))return;
+  try{ if(useFirestore&&db){ const b=writeBatch(db); dups.forEach(s=>b.delete(doc(db,FIRESTORE_COLLECTION,s.id))); await b.commit(); } else{ const ids=new Set(dups.map(i=>i.id)); sales=sales.filter(i=>!ids.has(i.id)); saveLocal(); renderAll(); renderAdminStats(); renderRecent(); } showToast(`✓ សម្អាតស្ទួន ${dups.length} record`); }catch(e){ showToast('⚠️ សម្អាតមិនបាន',true); }
+}
+
+function calcPreview(){ const qty=parseInt(document.getElementById('f-qty').value,10)||0,cost=parseFloat(document.getElementById('f-cost').value)||0,sell=parseFloat(document.getElementById('f-sell').value)||0,tc=cost*qty,ts=sell*qty,tp=ts-tc; document.getElementById('p-cost').textContent=tc>0?fmt(tc):'—'; document.getElementById('p-sell').textContent=ts>0?fmt(ts):'—'; const pp=document.getElementById('p-profit'); pp.textContent=(tc>0||ts>0)?(tp>=0?'+':'')+fmt(tp):'—'; pp.className='cr-value '+(tp>=0?'text-green':'text-red'); }
+
+function renderAdminStats(){ const el=document.getElementById('adminStats'); if(!sales.length){ el.innerHTML='<div style="color:var(--text3);font-size:13px;text-align:center;padding:20px">មិនទានមានទិន្នន័យ</div>'; return; } const tP=sales.reduce((a,s)=>a+((Number(s.sell)||0)-(Number(s.cost)||0))*(Number(s.qty)||0),0),tS=sales.reduce((a,s)=>a+(Number(s.sell)||0)*(Number(s.qty)||0),0),tQ=sales.reduce((a,s)=>a+(Number(s.qty)||0),0); el.innerHTML=`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid var(--border)"><span style="color:var(--text3);font-size:13px">🧮 ចំនួនសរុប</span><span style="font-weight:600">${tQ}</span></div><div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid var(--border)"><span style="color:var(--text3);font-size:13px">💰 ប្រាក់លក់</span><span style="font-weight:600;color:var(--blue2)">${fmt(tS)}</span></div><div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid var(--border)"><span style="color:var(--text3);font-size:13px">📈 ចំណេញ</span><span style="font-weight:700;color:${tP>=0?'var(--green)':'var(--red)'}">${fmt(tP)}</span></div><div style="display:flex;justify-content:space-between;padding:8px 0"><span style="color:var(--text3);font-size:13px">🗒 Transactions</span><span style="font-weight:600">${sales.length}</span></div>`; }
+
+function renderRecent(){ const el=document.getElementById('recentList'); const last5=[...sales].slice(0,5); if(!last5.length){ el.innerHTML='<div style="color:var(--text3);font-size:13px;text-align:center;padding:16px">មិនទានមានទិន្នន័យ</div>'; return; } el.innerHTML=last5.map(s=>{ const profit=((Number(s.sell)||0)-(Number(s.cost)||0))*(Number(s.qty)||0); return`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--border)"><div><div style="font-size:13px;font-weight:500">${escapeHTML(s.model||'')}</div><div style="font-size:11px;color:var(--text3)">${s.date||''} · ${Number(s.qty)||0} ចំនួន</div></div><span class="badge ${profit>=0?'badge-profit':'badge-loss'}">${profit>=0?'+':''}${fmt(profit)}</span></div>`; }).join(''); }
+
+function csvCell(v){ const t=String(v??''); return(t.includes('"')||t.includes(',')||t.includes('\n'))?'"'+t.replace(/"/g,'""')+'"':t; }
+
+function exportCSV(){ if(!sales.length)return showToast('⚠️ គ្មានទិន្នន័យ',true); const headers=['Model','ចំនួន','តម្លៃលក់','តម្លៃនាំចូល','ប្រាក់ចំណេញ','ថ្ងៃខែលក់','% Margin']; const rows=sales.map(s=>{ const qty=Number(s.qty)||0,cE=Number(s.cost)||0,sE=Number(s.sell)||0,cost=cE*qty,sell=sE*qty,profit=sell-cost,margin=sell>0?(profit/sell*100).toFixed(1):0; return[s.model,qty,sE,cE,profit.toFixed(2),s.date,margin].map(csvCell).join(','); }); const csv='\uFEFF'+[headers.join(','),...rows].join('\n'); const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='AirPods_Sales_'+new Date().toISOString().slice(0,10)+'.csv'; a.click(); showToast('✓ Export CSV រួចរាល់'); }
+
+async function savePDF(){ const report=document.getElementById('page-dashboard'); if(!report)return showToast('⚠️ រកមិនឃើញ Report',true); if(!window.html2canvas||!window.jspdf?.jsPDF)return showToast('⚠️ PDF library មិនទាន់ load',true); try{ showToast('⏳ កំពុងបង្កើត PDF...'); document.body.classList.add('pdf-exporting'); await new Promise(r=>setTimeout(r,350)); const canvas=await html2canvas(report,{backgroundColor:'#0a0a0f',scale:Math.min(2,window.devicePixelRatio||1.5),useCORS:true,allowTaint:true,scrollX:0,scrollY:-window.scrollY,windowWidth:Math.max(document.documentElement.scrollWidth,report.scrollWidth),windowHeight:Math.max(document.documentElement.scrollHeight,report.scrollHeight)}); const{jsPDF}=window.jspdf; const pdf=new jsPDF('p','mm','a4'); const margin=8,pw=pdf.internal.pageSize.getWidth(),ph=pdf.internal.pageSize.getHeight(),iw=pw-(margin*2),ih=(canvas.height*iw)/canvas.width; const imgData=canvas.toDataURL('image/png',1.0); let hLeft=ih,pos=margin; pdf.addImage(imgData,'PNG',margin,pos,iw,ih); hLeft-=ph-(margin*2); while(hLeft>0){ pos=margin-(ih-hLeft); pdf.addPage(); pdf.addImage(imgData,'PNG',margin,pos,iw,ih); hLeft-=ph-(margin*2); } pdf.save('AirPods_Report_'+new Date().toISOString().slice(0,10)+'.pdf'); showToast('✓ Save PDF រួចរាល់'); }catch(e){ console.error(e); showToast('⚠️ Save PDF មិនបាន',true); }finally{ document.body.classList.remove('pdf-exporting'); } }
+
+/* ── SET DEFAULT DATES ── */
+document.getElementById('f-date').value=new Date().toISOString().slice(0,10);
+if(document.getElementById('st-date'))document.getElementById('st-date').value=new Date().toISOString().slice(0,10);
+
+/* ── EXPOSE ── */
+Object.assign(window,{
+  switchPage,setFilter,renderTable,
+  addSale,editSale,deleteSale,cancelSaleEdit,calcPreview,
+  exportCSV,savePDF,cleanDuplicateSales,
+  renderProducts,addProduct,editProduct,deleteProduct,cancelProductEdit,onSaleModelChange,
+  renderStock,addStock,editStock,deleteStock,cancelStockEdit,onStockModelChange,
+  // Note functions
+  noteCreateNew,noteOpenNote,noteSave,noteDelete,noteTogglePin,
+  noteSetType,noteSetColor,noteSetFilter,noteRenderList,
+  noteAddChecklistItem,noteToggleCheck,noteChecklistTextInput,noteChecklistKeydown,noteDeleteCheckItem,noteAutoResizeTA,
+  noteAddScheduleItem,noteDeleteScheduleItem,noteScheduleFieldChange,noteAutoResizeTitle,noteUpdateWordCount
 });
 
 /* ── INIT ── */
-if (firebaseConfigReady()) {
+if(firebaseConfigReady()){
   initFirestore();
-} else {
-  sales = loadLocalSales();
-  products = loadLocalProducts();
-  stockItems = loadLocalStock();
-  renderAll();
-  renderProducts();
-  renderModelOptions();
-  renderStock();
-  renderAdminStats();
-  renderRecent();
-  showToast('⚠️ សូមដាក់ Firebase config ដើម្បីប្រើ Firestore', true);
+}else{
+  sales=loadLocalSales(); products=loadLocalProducts(); stockItems=loadLocalStock(); notes=loadLocalNotes();
+  renderAll(); renderProducts(); renderModelOptions(); renderStock(); renderAdminStats(); renderRecent(); noteRenderList();
+  showToast('⚠️ សូមដាក់ Firebase config ដើម្បីប្រើ Firestore',true);
 }
 </script>
 </body>
-</html>
+</html>វ
